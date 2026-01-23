@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace HotelManagementSystem.Controllers
 {
@@ -31,11 +32,12 @@ namespace HotelManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Simple password check (plaintext as per current implementation)
+                // Find user by username
                 var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Username == loginDto.Username && u.PasswordHash == loginDto.Password);
+                    .FirstOrDefaultAsync(u => u.Username == loginDto.Username);
 
-                if (user != null)
+                // Verify password using bcrypt
+                if (user != null && BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
                 {
                     var claims = new List<Claim>
                     {
@@ -90,7 +92,7 @@ namespace HotelManagementSystem.Controllers
                 var user = new User
                 {
                     Username = userDto.Username,
-                    PasswordHash = userDto.Password,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
                     Role = "Customer",
                     FullName = userDto.FullName,
                     Email = userDto.Email,
