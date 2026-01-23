@@ -1,10 +1,10 @@
-﻿using BLL.Interfaces;
+﻿using AutoMapper;
+using BLL.Interfaces;
 using DAL.Interfaces;
 using DTOs;
 using DTOs.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BLL.Service
@@ -25,13 +25,13 @@ namespace BLL.Service
         public async Task<IEnumerable<RoomCleaningDto>> GetAllCleaningsAsync()
         {
             var cleanings = await _repository.GetAllWithDetailsAsync();
-            return cleanings.Select(MapToDto);
+            return _mapper.Map<IEnumerable<RoomCleaningDto>>(cleanings);
         }
 
         public async Task<IEnumerable<RoomCleaningDto>> GetPendingCleaningsAsync()
         {
             var cleanings = await _repository.GetPendingCleaningsAsync();
-            return cleanings.Select(MapToDto);
+            return _mapper.Map<IEnumerable<RoomCleaningDto>>(cleanings);
         }
 
         public async Task AssignCleanerAsync(int roomId, int staffUserId)

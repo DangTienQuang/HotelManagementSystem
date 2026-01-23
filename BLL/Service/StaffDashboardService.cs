@@ -1,4 +1,5 @@
-﻿using BLL.Interfaces;
+﻿using AutoMapper;
+using BLL.Interfaces;
 using DAL.Interfaces;
 using DTOs;
 using DTOs.Entities;
@@ -11,25 +12,18 @@ namespace BLL.Service
     public class StaffDashboardService : IStaffDashboardService
     {
         private readonly IGenericRepository<Room> _roomRepository;
+        private readonly IMapper _mapper;
 
-        public StaffDashboardService(IGenericRepository<Room> roomRepository)
+        public StaffDashboardService(IGenericRepository<Room> roomRepository, IMapper mapper)
         {
             _roomRepository = roomRepository;
+            _mapper = mapper;
         }
 
         public async Task<StaffDashboardDto> GetDashboardDataAsync()
         {
             var rooms = await _roomRepository.GetAllAsync();
-
-            var roomDtos = rooms.Select(r => new RoomDto
-            {
-                Id = r.Id,
-                RoomNumber = r.RoomNumber,
-                RoomType = r.RoomType,
-                Capacity = r.Capacity,
-                Price = r.Price,
-                Status = r.Status
-            }).ToList();
+            var roomDtos = _mapper.Map<System.Collections.Generic.List<RoomDto>>(rooms);
 
             return new StaffDashboardDto
             {

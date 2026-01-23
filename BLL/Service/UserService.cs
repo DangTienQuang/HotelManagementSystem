@@ -1,3 +1,4 @@
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Interfaces;
 using DTOs;
@@ -13,42 +14,38 @@ namespace BLL.Service
     {
         private readonly IUserRepository _repository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository repository, IPasswordHasher passwordHasher)
+        public UserService(IUserRepository repository, IPasswordHasher passwordHasher, IMapper mapper)
         {
             _repository = repository;
             _passwordHasher = passwordHasher;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             var users = await _repository.GetAllWithDetailsAsync();
-            return users.Select(MapToDto);
+            return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<IEnumerable<UserDto>> GetStaffUsersAsync()
         {
             var users = await _repository.GetStaffUsersAsync();
-            return users.Select(MapToDto);
+            return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
         {
             var user = await _repository.GetByIdAsync(id);
-            return user == null ? null : MapToDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task AddUserAsync(UserDto userDto)
         {
-            var user = new User
-            {
-                Username = userDto.Username,
-                PasswordHash = _passwordHasher.HashPassword(userDto.Password),
-                Role = userDto.Role,
-                FullName = userDto.FullName,
-                Email = userDto.Email,
-                CreatedAt = DateTime.UtcNow
-            };
+            var user = _mapper.Map<User>(userDto);
+            user.PasswordHash = _passwordHasher.HashPassword(userDto.Password);
+            user.CreatedAt = DateTime.UtcNow;
 
             // If Role is Staff, automatically create a Staff entry
             if (string.Equals(userDto.Role, "Staff", StringComparison.OrdinalIgnoreCase))
@@ -71,10 +68,8 @@ namespace BLL.Service
             var user = await _repository.GetByIdAsync(userDto.Id);
             if (user != null)
             {
-                user.Username = userDto.Username;
-                user.Role = userDto.Role;
-                user.FullName = userDto.FullName;
-                user.Email = userDto.Email;
+                _mapper.Map(userDto, user);
+                
                 // Only update password if provided
                 if (!string.IsNullOrEmpty(userDto.Password))
                 {
@@ -88,22 +83,6 @@ namespace BLL.Service
         public async Task DeleteUserAsync(int id)
         {
             await _repository.DeleteAsync(id);
-        }
-
-        private UserDto MapToDto(User user)
-        {
-            return new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Role = user.Role,
-                FullName = user.FullName,
-                Email = user.Email,
-                // Check if they are in staff table?
-                // For now, IsStaff is loosely based on role or just false if we don't load navigation prop.
-                // The GetStaffUsersAsync ensures we get the right ones.
-                IsStaff = user.Staffs != null && user.Staffs.Any()
-            };
         }
     }
 }
