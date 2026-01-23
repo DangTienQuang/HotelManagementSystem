@@ -34,18 +34,15 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoomCleaningService, RoomCleaningService>();
 builder.Services.AddScoped<IStaffDashboardService, StaffDashboardService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
 
 var app = builder.Build();
 
 // Seed Database
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<HotelDbContext>();
-    var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-    
-    DbInitializer.Initialize(context);
-    DbInitializer.SeedData(context, passwordHasher.HashPassword("admin123"));
+    var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+    await seeder.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.

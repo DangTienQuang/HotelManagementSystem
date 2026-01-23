@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace DAL
 {
+    [Obsolete("Use IDatabaseSeeder service instead")]
     public static class DbInitializer
     {
         public static void Initialize(HotelDbContext context)
@@ -13,10 +14,9 @@ namespace DAL
 
         public static void SeedData(HotelDbContext context, string adminPasswordHash)
         {
-            // Look for any users.
             if (context.Users.Any())
             {
-                return;   // DB has been seeded
+                return;
             }
 
             var adminUser = new User
@@ -29,7 +29,6 @@ namespace DAL
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Add Staff entity
             var staff = new Staff
             {
                 User = adminUser,
@@ -44,5 +43,6 @@ namespace DAL
         }
     }
 }
+
 
 
