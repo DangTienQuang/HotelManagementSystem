@@ -1,18 +1,26 @@
-﻿@model IEnumerable<DTOs.RoomDto>
+@model IEnumerable<DTOs.RoomMaintenanceDto>
 
 @{
-    ViewData["Title"] = "Maintenance Management";
+    ViewData["Title"] = "Maintenance Tickets";
 }
 
-<h1>Maintenance Management</h1>
+<h1>Maintenance Tickets</h1>
 
-<table class="table table-bordered table-hover mt-3">
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-danger">
+        <i class="fas fa-plus"></i> Create New Ticket
+    </a>
+</div>
+
+<table class="table table-bordered table-hover">
     <thead class="thead-dark">
         <tr>
-            <th>Room Number</th>
-            <th>Type</th>
-            <th>Current Status</th>
-            <th>Action</th>
+            <th>Room</th>
+            <th>Repairman</th>
+            <th>Reason</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -20,51 +28,18 @@
         {
             <tr>
                 <td>@item.RoomNumber</td>
-                <td>@item.RoomType</td>
+                <td>@item.StaffName</td>
+                <td>@item.Reason</td>
+                <td>@item.StartDate.ToString("g")</td>
+                <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("g") : "-")</td>
                 <td>
-                    @if(item.Status == "Maintenance")
+                    @if (item.Status == "Completed")
                     {
-                        <span class="badge bg-secondary">Maintenance</span>
-                    }
-                    else if(item.Status == "Available")
-                    {
-                        <span class="badge bg-success">Available</span>
-                    }
-                    else if(item.Status == "Occupied")
-                    {
-                        <span class="badge bg-danger">Occupied</span>
-                    }
-                    else if(item.Status == "Cleaning")
-                    {
-                        <span class="badge bg-info">Cleaning</span>
-                    }
-                    else 
-                    {
-                        <span class="badge bg-dark">@item.Status</span>
-                    }
-                </td>
-                <td>
-                    @if (item.Status == "Available")
-                    {
-                        <form asp-action="StartMaintenance" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-tools"></i> Start Maintenance
-                            </button>
-                        </form>
-                    }
-                    else if (item.Status == "Maintenance")
-                    {
-                        <form asp-action="FinishMaintenance" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-check"></i> Finish
-                            </button>
-                        </form>
+                        <span class="badge bg-success">Completed</span>
                     }
                     else
                     {
-                        <span class="text-muted" style="font-size: 0.9em;">Cannot modify (Room is busy)</span>
+                        <span class="badge bg-warning text-dark">In Progress</span>
                     }
                 </td>
             </tr>
