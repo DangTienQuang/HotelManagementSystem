@@ -1,56 +1,62 @@
-﻿using BLL.Interfaces;
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace HotelManagementSystem.Controllers
 {
     [Authorize]
     public class MaintenanceController : Controller
     {
+        private readonly IRoomMaintenanceService _maintenanceService;
         private readonly IRoomService _roomService;
+        private readonly IUserService _userService;
 
-        public MaintenanceController(IRoomService roomService)
+        public MaintenanceController(
+            IRoomMaintenanceService maintenanceService,
+            IRoomService roomService,
+            IUserService userService)
         {
+            _maintenanceService = maintenanceService;
             _roomService = roomService;
+            _userService = userService;
         }
 
-        // Hiển thị danh sách các phòng để quản lý bảo trì
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index()
         {
-            var rooms = await _roomService.GetAllRoomsAsync();
-            // Chỉ lấy các phòng Đang bảo trì hoặc Có sẵn để thao tác cho gọn
-            // Hoặc lấy tất cả để nhân viên dễ nhìn
-            return View(rooms);
+            var tasks = await _maintenanceService.GetAllMaintenanceTasksAsync();
+            return View(tasks);
         }
 
-        // Chuyển sang trạng thái Maintenance
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Create()
+        {
+            var rooms = await _roomService.GetAllRoomsAsync();
+            var staff = await _userService.GetStaffUsersAsync();
+
+            ViewBag.Rooms = new SelectList(rooms, "Id", "RoomNumber");
+            ViewBag.Staff = new SelectList(staff, "Id", "FullName");
+
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> StartMaintenance(int id)
+        public async Task<IActionResult> Create(int roomId, int staffUserId, string reason)
         {
-            var room = await _roomService.GetRoomByIdAsync(id);
-            if (room != null && room.Status == "Available")
-            {
-                await _roomService.UpdateRoomStatusAsync(id, "Maintenance");
-            }
+            await _maintenanceService.CreateMaintenanceTaskAsync(roomId, staffUserId, reason);
             return RedirectToAction(nameof(Index));
         }
 
-        // Hoàn tất bảo trì, trả về Available
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Staff, Administrator")]
-        public async Task<IActionResult> FinishMaintenance(int id)
+        public async Task<IActionResult> Complete(int id)
         {
-            var room = await _roomService.GetRoomByIdAsync(id);
-            if (room != null && room.Status == "Maintenance")
-            {
-                await _roomService.UpdateRoomStatusAsync(id, "Available");
-            }
+            await _maintenanceService.CompleteMaintenanceTaskAsync(id);
 
             if (User.IsInRole("Administrator"))
             {

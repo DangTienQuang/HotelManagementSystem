@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Create Maintenance Ticket";
+}
+
+<h1>Create Maintenance Ticket</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div class="form-group mb-3">
+                <label class="control-label fw-bold">Room</label>
+                <select name="roomId" class="form-select" asp-items="ViewBag.Rooms"></select>
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label fw-bold">Repairman (Staff)</label>
+                <select name="staffUserId" class="form-select" asp-items="ViewBag.Staff"></select>
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label fw-bold">Reason</label>
+                <textarea name="reason" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="form-group mt-4">
+                <input type="submit" value="Create Ticket" class="btn btn-danger" />
+                <a asp-action="Index" class="btn btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
