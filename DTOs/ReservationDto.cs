@@ -1,4 +1,5 @@
 using System;
+using DTOs.Enums;
 
 namespace DTOs
 {
@@ -11,7 +12,7 @@ namespace DTOs
         public string RoomNumber { get; set; } = string.Empty;
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
-        public string Status { get; set; } = "Pending";
+        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
         public decimal TotalPrice { get; set; }
         public int NumberOfNights { get; set; }
     }

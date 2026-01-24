@@ -1,5 +1,6 @@
 using DAL.Interfaces;
 using DTOs.Entities;
+using DTOs.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -46,7 +47,7 @@ namespace DAL.Repository
             // Check if there are any overlapping reservations
             var hasOverlap = await _context.Reservations
                 .AnyAsync(r => r.RoomId == roomId &&
-                    r.Status != "Cancelled" &&
+                    r.Status != ReservationStatus.Cancelled &&
                     ((checkIn >= r.CheckInDate && checkIn < r.CheckOutDate) ||
                      (checkOut > r.CheckInDate && checkOut <= r.CheckOutDate) ||
                      (checkIn <= r.CheckInDate && checkOut >= r.CheckOutDate)));

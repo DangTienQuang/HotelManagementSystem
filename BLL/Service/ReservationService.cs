@@ -78,7 +78,7 @@ namespace BLL.Service
                 ReservedBy = user?.Id,
                 CheckInDate = reservationDto.CheckInDate,
                 CheckOutDate = reservationDto.CheckOutDate,
-                Status = "Confirmed",
+                Status = ReservationStatus.Confirmed,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -113,12 +113,12 @@ namespace BLL.Service
                 throw new InvalidOperationException("Reservation not found.");
             }
 
-            if (reservation.Status == "Cancelled")
+            if (reservation.Status == ReservationStatus.Cancelled)
             {
                 throw new InvalidOperationException("Reservation is already cancelled.");
             }
 
-            reservation.Status = "Cancelled";
+            reservation.Status = ReservationStatus.Cancelled;
             await _reservationRepository.UpdateAsync(reservation);
 
             // Update room status back to Available
