@@ -11,16 +11,11 @@ namespace BLL.Service
     {
         private readonly IGenericRepository<Room> _roomRepository;
         private readonly IRoomCleaningService _cleaningService;
-        private readonly IRoomMaintenanceService _maintenanceService;
 
-        public StaffDashboardService(
-            IGenericRepository<Room> roomRepository,
-            IRoomCleaningService cleaningService,
-            IRoomMaintenanceService maintenanceService)
+        public StaffDashboardService(IGenericRepository<Room> roomRepository, IRoomCleaningService cleaningService)
         {
             _roomRepository = roomRepository;
             _cleaningService = cleaningService;
-            _maintenanceService = maintenanceService;
         }
 
         public async Task<StaffDashboardDto> GetDashboardDataAsync()
@@ -59,13 +54,24 @@ namespace BLL.Service
             // 1. Get assigned cleaning tasks
             var cleaningTasks = await _cleaningService.GetCleaningsByStaffIdAsync(staffUserId);
 
-            // 2. Get assigned maintenance tasks
-            var maintenanceTasks = await _maintenanceService.GetTasksByStaffAsync(staffUserId);
+            // 2. Get rooms in maintenance
+            var allRooms = await _roomRepository.GetAllAsync();
+            var maintenanceRooms = allRooms
+                .Where(r => r.Status == "Maintenance")
+                .Select(r => new RoomDto
+                {
+                    Id = r.Id,
+                    RoomNumber = r.RoomNumber,
+                    RoomType = r.RoomType,
+                    Capacity = r.Capacity,
+                    Price = r.Price,
+                    Status = r.Status
+                });
 
             return new StaffTaskDto
             {
                 MyCleaningTasks = cleaningTasks,
-                MyMaintenanceTasks = maintenanceTasks
+                MaintenanceRooms = maintenanceRooms
             };
         }
     }

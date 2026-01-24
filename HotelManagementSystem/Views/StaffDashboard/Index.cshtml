@@ -44,26 +44,26 @@
     </div>
 
     <div class="col-md-6">
-        <h3>My Maintenance Tickets</h3>
-        @if (Model.MyMaintenanceTasks.Any())
+        <h3>Maintenance Requests</h3>
+        @if (Model.MaintenanceRooms.Any())
         {
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Room</th>
-                        <th>Reason</th>
+                        <th>Type</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var task in Model.MyMaintenanceTasks)
+                    @foreach (var room in Model.MaintenanceRooms)
                     {
                         <tr>
-                            <td>@task.RoomNumber</td>
-                            <td>@task.Reason</td>
+                            <td>@room.RoomNumber</td>
+                            <td>@room.RoomType</td>
                             <td>
-                                <form asp-controller="Maintenance" asp-action="Complete" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@task.Id" />
+                                <form asp-controller="Maintenance" asp-action="FinishMaintenance" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@room.Id" />
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-sm btn-success">Finish</button>
                                 </form>
@@ -75,7 +75,7 @@
         }
         else
         {
-            <div class="alert alert-success">No active maintenance tickets assigned.</div>
+            <div class="alert alert-success">No rooms under maintenance.</div>
         }
     </div>
 </div>

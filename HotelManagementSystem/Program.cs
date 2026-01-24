@@ -28,12 +28,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoomCleaningRepository, RoomCleaningRepository>();
-builder.Services.AddScoped<IRoomMaintenanceRepository, RoomMaintenanceRepository>();
 
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoomCleaningService, RoomCleaningService>();
-builder.Services.AddScoped<IRoomMaintenanceService, RoomMaintenanceService>();
 builder.Services.AddScoped<IStaffDashboardService, StaffDashboardService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();

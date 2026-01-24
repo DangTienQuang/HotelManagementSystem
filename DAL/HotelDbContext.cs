@@ -16,7 +16,6 @@ namespace DAL
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<CheckInOut> CheckInOuts { get; set; }
         public DbSet<RoomCleaning> RoomCleanings { get; set; }
-        public DbSet<RoomMaintenance> RoomMaintenances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,12 +69,6 @@ namespace DAL
                 .HasOne(rc => rc.Cleaner)
                 .WithMany()
                 .HasForeignKey(rc => rc.CleanedBy)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<RoomMaintenance>()
-                .HasOne(rm => rm.Staff)
-                .WithMany()
-                .HasForeignKey(rm => rm.StaffId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
