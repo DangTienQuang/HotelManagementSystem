@@ -34,11 +34,13 @@ builder.Services.AddScoped<IRoomCleaningRepository, RoomCleaningRepository>();
 builder.Services.AddScoped<IMaintenanceTaskRepository, MaintenanceTaskRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
+
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminStaffService, AdminStaffService>();
 builder.Services.AddScoped<IAdminCustomerService, AdminCustomerService>();
 builder.Services.AddScoped<IAdminTaskService, AdminTaskService>();
+builder.Services.AddScoped<IStaffTaskService, StaffTaskService>();
 builder.Services.AddScoped<IAdminNotificationService, AdminNotificationService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
 builder.Services.AddScoped<IRoomCleaningService, RoomCleaningService>();
@@ -46,6 +48,7 @@ builder.Services.AddScoped<IStaffDashboardService, StaffDashboardService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
+
 
 var app = builder.Build();
 
