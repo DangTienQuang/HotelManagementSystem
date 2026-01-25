@@ -69,7 +69,8 @@ namespace BLL.Service
         {
             var query = _repository.GetQueryable();
 
-            query = query.Where(r => r.Status == RoomStatus.Available);
+            // Include rooms that are Available or Reserved (Reserved rooms can still be booked for different dates)
+            query = query.Where(r => r.Status == RoomStatus.Available || r.Status == RoomStatus.Reserved);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {

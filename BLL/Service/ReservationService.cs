@@ -31,7 +31,7 @@ namespace BLL.Service
 
         public async Task<ReservationDto> CreateReservationAsync(CreateReservationDto reservationDto, string username)
         {
-            if (reservationDto.CheckInDate < DateTime.UtcNow)
+            if (reservationDto.CheckInDate < DateTime.UtcNow.Date)
             {
                 throw new InvalidOperationException("Check-in date cannot be in the past.");
             }
@@ -74,8 +74,12 @@ namespace BLL.Service
 
             await _reservationRepository.AddAsync(reservation);
 
-            room.Status = RoomStatus.Reserved;
-            await _roomRepository.UpdateAsync(room);
+            // Only update room status if check-in is today
+            if (reservationDto.CheckInDate.Date == DateTime.UtcNow.Date)
+            {
+                room.Status = RoomStatus.Reserved;
+                await _roomRepository.UpdateAsync(room);
+            }
 
             var createdReservation = await _reservationRepository.GetReservationWithDetailsAsync(reservation.Id);
             return MapToDto(createdReservation!);
@@ -109,7 +113,6 @@ namespace BLL.Service
             reservation.Status = ReservationStatus.Cancelled;
             await _reservationRepository.UpdateAsync(reservation);
 
-            // Update room status back to Available
             var room = await _roomRepository.GetByIdAsync(reservation.RoomId);
             if (room != null && room.Status == RoomStatus.Reserved)
             {
