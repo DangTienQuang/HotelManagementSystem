@@ -138,55 +138,24 @@
                                     {
                                         <tr>
                                             <td class="align-middle fw-bold">@task.RoomNumber</td>
+                                            <td class="align-middle">@task.Description</td>
                                             <td class="align-middle">
-                                                <form asp-action="UpdateTask" method="post" class="d-inline">
-                                                    <input type="hidden" name="Id" value="@task.Id" />
-                                                    <input type="hidden" name="RoomId" value="@task.RoomId" />
-                                                    <input type="hidden" name="AssignedTo" value="@task.AssignedTo" />
-                                                    <input type="hidden" name="Priority" value="@task.Priority" />
-                                                    <input type="hidden" name="Deadline" value="@task.Deadline.ToString("yyyy-MM-dd")" />
-                                                    <input name="Description" type="text" class="form-control form-control-sm" value="@task.Description" onchange="this.form.submit()" style="min-width: 200px;" />
-                                                </form>
+                                                @if (task.Priority == "High")
+                                                {
+                                                    <span class="badge bg-danger">High</span>
+                                                }
+                                                else if (task.Priority == "Medium")
+                                                {
+                                                    <span class="badge bg-warning text-dark">Medium</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Low</span>
+                                                }
                                             </td>
+                                            <td class="align-middle">@task.AssignedStaffName</td>
                                             <td class="align-middle">
-                                                <form asp-action="UpdateTask" method="post" class="d-inline">
-                                                    <input type="hidden" name="Id" value="@task.Id" />
-                                                    <input type="hidden" name="RoomId" value="@task.RoomId" />
-                                                    <input type="hidden" name="AssignedTo" value="@task.AssignedTo" />
-                                                    <input type="hidden" name="Deadline" value="@task.Deadline.ToString("yyyy-MM-dd")" />
-                                                    <input type="hidden" name="Description" value="@task.Description" />
-                                                    <select name="Priority" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 100px;">
-                                                        <option value="High" selected="@(task.Priority == "High")">High</option>
-                                                        <option value="Medium" selected="@(task.Priority == "Medium")">Medium</option>
-                                                        <option value="Low" selected="@(task.Priority == "Low")">Low</option>
-                                                    </select>
-                                                </form>
-                                            </td>
-                                            <td class="align-middle">
-                                                <form asp-action="UpdateTask" method="post" class="d-inline">
-                                                    <input type="hidden" name="Id" value="@task.Id" />
-                                                    <input type="hidden" name="RoomId" value="@task.RoomId" />
-                                                    <input type="hidden" name="Priority" value="@task.Priority" />
-                                                    <input type="hidden" name="Deadline" value="@task.Deadline.ToString("yyyy-MM-dd")" />
-                                                    <input type="hidden" name="Description" value="@task.Description" />
-                                                    <select name="AssignedTo" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 150px;">
-                                                        <option value="">Select Staff</option>
-                                                        @foreach (var staff in ViewBag.Staff as SelectList)
-                                                        {
-                                                            <option value="@staff.Value" selected="@(staff.Value == task.AssignedTo?.ToString())">@staff.Text</option>
-                                                        }
-                                                    </select>
-                                                </form>
-                                            </td>
-                                            <td class="align-middle">
-                                                <form asp-action="UpdateTask" method="post" class="d-inline">
-                                                    <input type="hidden" name="Id" value="@task.Id" />
-                                                    <input type="hidden" name="RoomId" value="@task.RoomId" />
-                                                    <input type="hidden" name="AssignedTo" value="@task.AssignedTo" />
-                                                    <input type="hidden" name="Priority" value="@task.Priority" />
-                                                    <input type="hidden" name="Description" value="@task.Description" />
-                                                    <input name="Deadline" type="date" class="form-control form-control-sm" value="@task.Deadline.ToString("yyyy-MM-dd")" onchange="this.form.submit()" style="min-width: 150px;" />
-                                                </form>
+                                                <small>@task.Deadline.ToString("MMM dd, yyyy")</small>
                                             </td>
                                             <td class="align-middle">
                                                 @if (task.Status == "Pending")
@@ -207,28 +176,35 @@
                                                 }
                                             </td>
                                             <td class="text-end align-middle">
-                                                @if (task.Status != "Approved")
+                                                @if (task.Status == "Approved")
                                                 {
-                                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                    <span class="text-success">
+                                                        <i class="bi bi-check-circle-fill"></i> Approved
+                                                    </span>
+                                                }
+                                                else if (task.Status == "Completed")
+                                                {
+                                                    <!-- Completed: Only Approve button -->
+                                                    <form asp-action="ApproveTask" method="post" class="d-inline">
                                                         <input type="hidden" name="taskId" value="@task.Id" />
-                                                        <input type="hidden" name="status" value="@(task.Status == "Pending" ? "InProgress" : task.Status == "InProgress" ? "Completed" : "InProgress")" />
-                                                        <button type="submit" class="btn btn-sm btn-primary">
-                                                            <i class="bi bi-pencil"></i> Update
+                                                        <button type="submit" class="btn btn-sm btn-success">
+                                                            <i class="bi bi-check-circle"></i> Approve
                                                         </button>
                                                     </form>
-                                                    @if (task.Status == "Completed")
-                                                    {
-                                                        <form asp-action="ApproveTask" method="post" class="d-inline">
-                                                            <input type="hidden" name="taskId" value="@task.Id" />
-                                                            <button type="submit" class="btn btn-sm btn-success">
-                                                                <i class="bi bi-check-circle"></i> Approve
-                                                            </button>
-                                                        </form>
-                                                    }
+                                                }
+                                                else if (task.Status == "Pending")
+                                                {
+                                                    <!-- Pending: Only Edit button -->
+                                                    <a asp-action="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-pencil"></i> Edit
+                                                    </a>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">Approved</span>
+                                                    <!-- InProgress: No actions -->
+                                                    <span class="text-muted small">
+                                                        <i class="bi bi-hourglass-split"></i> In Progress
+                                                    </span>
                                                 }
                                             </td>
                                         </tr>
