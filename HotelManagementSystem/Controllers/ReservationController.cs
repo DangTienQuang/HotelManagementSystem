@@ -66,8 +66,21 @@ namespace HotelManagementSystem.Controllers
             }
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Confirmation(int id)
+        {
+            var reservation = await _reservationService.GetReservationByIdAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            return View(reservation);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
         {
             var reservation = await _reservationService.GetReservationByIdAsync(id);
             if (reservation == null)
