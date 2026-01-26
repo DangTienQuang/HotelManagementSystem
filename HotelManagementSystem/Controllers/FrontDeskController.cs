@@ -79,6 +79,40 @@ namespace HotelManagementSystem.Controllers
                 return RedirectToAction("Index");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> CheckoutPreview(int id)
+        {
+            var reservation = await _reservationRepo.GetReservationWithDetailsAsync(id);
+            if (reservation == null) return NotFound();
+
+            // 1. Find the active Check-In record (the one without a checkout time)
+            var checkInRecord = reservation.CheckInOuts.FirstOrDefault(c => c.CheckOutTime == null);
+            if (checkInRecord == null || checkInRecord.CheckInTime == null)
+            {
+                TempData["Error"] = "No active check-in record found for this guest.";
+                return RedirectToAction("Index");
+            }
+
+            // 2. Calculate the Bill Preview
+            var checkInTime = checkInRecord.CheckInTime.Value;
+            var checkOutTime = DateTime.Now;
+
+            // Logic: Round up to the next full day. Minimum 1 day.
+            var duration = checkOutTime - checkInTime;
+            int daysStayed = (int)Math.Ceiling(duration.TotalDays);
+            if (daysStayed < 1) daysStayed = 1;
+
+            decimal roomPrice = reservation.Room.Price;
+            decimal totalPrice = roomPrice * daysStayed;
+
+            // 3. Pass data to View using a simple ViewModel or ViewBag
+            ViewBag.DaysStayed = daysStayed;
+            ViewBag.TotalPrice = totalPrice;
+            ViewBag.CheckInTime = checkInTime;
+            ViewBag.CheckOutTime = checkOutTime;
+
+            return View(reservation);
+        }
 
     }
 

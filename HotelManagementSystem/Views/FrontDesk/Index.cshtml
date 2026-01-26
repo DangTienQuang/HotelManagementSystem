@@ -121,9 +121,7 @@
                             <td>@item.Id</td>
                             <td>@item.CustomerId</td>
                             <td>@(item.Room?.RoomNumber ?? "None")</td>
-
                             <td>@(item.CheckInDate.HasValue? item.CheckInDate.Value.ToString("yyyy-MM-dd") : "-")</td>
-
                             <td>@(item.CheckOutDate.HasValue? item.CheckOutDate.Value.ToString("yyyy-MM-dd") : "-")</td>
                         </tr>
                     }
@@ -135,10 +133,6 @@
     <div class="action-panel">
         <form id="formCheckIn" asp-action="CheckIn" method="post">
             <input type="hidden" name="id" id="valCheckInId" />
-        </form>
-
-        <form id="formCheckOut" asp-action="CheckOut" method="post">
-            <input type="hidden" name="id" id="valCheckOutId" />
         </form>
 
         <button id="btnCheckIn" class="btn-action" onclick="doCheckIn()" disabled>Check-in</button>
@@ -170,7 +164,6 @@
                             <td>@item.Id</td>
                             <td>@(activeCheckIn?.CheckInBy?.ToString() ?? "-")</td>
                             <td>@(activeCheckIn?.CheckInTime?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
-
                             <td>@(item.CheckOutDate.HasValue? item.CheckOutDate.Value.ToString("yyyy-MM-dd") : "-")</td>
                         </tr>
                     }
@@ -182,26 +175,46 @@
 </div>
 
 <script>
-    // ... (Keep your JS exactly the same) ...
     let selectedArrivalId = null;
     let selectedInHouseId = null;
 
+    // --- ARRIVAL SELECTION ---
     function selectArrival(row, id) {
+        console.log("Selected Arrival ID:", id); // Check Console for this
+
+        // 1. Remove blue color from all rows
         document.querySelectorAll('#tableArrivals tr').forEach(r => r.classList.remove('selected-row'));
+
+        // 2. Add blue color to clicked row
         row.classList.add('selected-row');
+
+        // 3. Enable button
         selectedArrivalId = id;
         document.getElementById('btnCheckIn').disabled = false;
+
+        // 4. Deselect the other table
         resetRightSide();
     }
 
+    // --- IN-HOUSE SELECTION ---
     function selectInHouse(row, id) {
+        console.log("Selected In-House ID:", id); // Check Console for this
+
+        // 1. Remove blue color from all rows
         document.querySelectorAll('#tableInHouse tr').forEach(r => r.classList.remove('selected-row'));
+
+        // 2. Add blue color to clicked row
         row.classList.add('selected-row');
+
+        // 3. Enable button
         selectedInHouseId = id;
         document.getElementById('btnCheckOut').disabled = false;
+
+        // 4. Deselect the other table
         resetLeftSide();
     }
 
+    // --- BUTTON ACTIONS ---
     function doCheckIn() {
         if (selectedArrivalId) {
             document.getElementById('valCheckInId').value = selectedArrivalId;
@@ -211,11 +224,12 @@
 
     function doCheckOut() {
         if (selectedInHouseId) {
-            document.getElementById('valCheckOutId').value = selectedInHouseId;
-            document.getElementById('formCheckOut').submit();
+            // REDIRECT to the Preview Page
+            window.location.href = '/FrontDesk/CheckoutPreview?id=' + selectedInHouseId;
         }
     }
 
+    // --- RESET HELPERS ---
     function resetLeftSide() {
         document.querySelectorAll('#tableArrivals tr').forEach(r => r.classList.remove('selected-row'));
         selectedArrivalId = null;

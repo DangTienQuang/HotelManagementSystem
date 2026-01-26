@@ -34,17 +34,19 @@ namespace HotelManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Username == loginDto.Username);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
 
                 if (user != null && _passwordHasher.VerifyPassword(loginDto.Password, user.PasswordHash))
                 {
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.Role, user.Role),
-                        new Claim("UserId", user.Id.ToString())
-                    };
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role),
+                
+                // FIX: Change "UserId" to ClaimTypes.NameIdentifier
+                // Old: new Claim("UserId", user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

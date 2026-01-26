@@ -42,6 +42,7 @@ namespace DAL.Repository
                 .Include(r => r.Customer)
                 .Include(r => r.Room)
                 .Include(r => r.ReservedByUser)
+                .Include(r => r.CheckInOuts)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
@@ -122,16 +123,12 @@ namespace DAL.Repository
         //  Implement GetTodayArrivals
         public IEnumerable<Reservation> GetTodayArrivals()
         {
-            var today = DateTime.Now.Date; // Use local date for "Today"
-
             return _context.Reservations
-                .Include(r => r.Customer)
-                .Include(r => r.Room)
-                // Logic: Status is 'Confirmed' AND CheckInDate is Today
-                .Where(r => r.Status == ReservationStatus.Confirmed &&
-                            r.CheckInDate.HasValue &&
-                            r.CheckInDate.Value.Date == today)
-                .ToList();
+        .Include(r => r.Customer)
+        .Include(r => r.Room)
+        .Where(r => r.Status == ReservationStatus.Confirmed)
+        .OrderBy(r => r.CheckInDate) // Sort by date so earliest appear first
+        .ToList();
         }
 
         //  Implement GetActiveReservations (In-House Guests)
@@ -140,7 +137,8 @@ namespace DAL.Repository
             return _context.Reservations
                 .Include(r => r.Customer)
                 .Include(r => r.Room)
-                // Logic: Status is 'CheckedIn' (Staying)
+                // FIX: Add this line to load the Check-In history (Staff & Time)
+                .Include(r => r.CheckInOuts)
                 .Where(r => r.Status == ReservationStatus.CheckedIn)
                 .OrderBy(r => r.CheckOutDate)
                 .ToList();
