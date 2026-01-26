@@ -31,7 +31,8 @@ namespace DAL.Repository
             return _context.Reservations
                 .Include(r => r.Customer)
                 .Include(r => r.Room)
-                .Where(r => r.Status == "Pending") // <--- Only fetches requests waiting for you
+                // FIX: Use Enum instead of string "Pending"
+                .Where(r => r.Status == ReservationStatus.Pending)
                 .OrderBy(r => r.CreatedAt)
                 .ToList();
         }
@@ -113,7 +114,36 @@ namespace DAL.Repository
                 .Select(r => new { r.CheckInDate, r.CheckOutDate })
                 .ToListAsync();
 
-            return reservations.Select(r => (r.CheckInDate, r.CheckOutDate));
+            //  Filter out any potential nulls and explicitly access .Value
+            return reservations
+                .Where(r => r.CheckInDate.HasValue && r.CheckOutDate.HasValue)
+                .Select(r => (r.CheckInDate!.Value, r.CheckOutDate!.Value));
+        }
+        //  Implement GetTodayArrivals
+        public IEnumerable<Reservation> GetTodayArrivals()
+        {
+            var today = DateTime.Now.Date; // Use local date for "Today"
+
+            return _context.Reservations
+                .Include(r => r.Customer)
+                .Include(r => r.Room)
+                // Logic: Status is 'Confirmed' AND CheckInDate is Today
+                .Where(r => r.Status == ReservationStatus.Confirmed &&
+                            r.CheckInDate.HasValue &&
+                            r.CheckInDate.Value.Date == today)
+                .ToList();
+        }
+
+        //  Implement GetActiveReservations (In-House Guests)
+        public IEnumerable<Reservation> GetActiveReservations()
+        {
+            return _context.Reservations
+                .Include(r => r.Customer)
+                .Include(r => r.Room)
+                // Logic: Status is 'CheckedIn' (Staying)
+                .Where(r => r.Status == ReservationStatus.CheckedIn)
+                .OrderBy(r => r.CheckOutDate)
+                .ToList();
         }
     }
 }

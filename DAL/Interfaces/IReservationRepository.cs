@@ -18,5 +18,7 @@ namespace DAL.Interfaces
         /// Throws InvalidOperationException if the room is not available for the specified dates.
         /// </summary>
         Task<Reservation> CreateReservationIfAvailableAsync(Reservation reservation);
+        IEnumerable<Reservation> GetTodayArrivals();
+        IEnumerable<Reservation> GetActiveReservations();
     }
 }

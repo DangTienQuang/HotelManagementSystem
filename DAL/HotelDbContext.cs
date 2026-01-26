@@ -30,6 +30,21 @@ namespace DAL
                 .Property(c => c.TotalAmount)
                 .HasColumnType("decimal(18,2)");
 
+            // FIX: Add Conversion for RoomType
+            modelBuilder.Entity<Room>()
+                .Property(r => r.RoomType)
+                .HasConversion<string>();
+
+            // FIX: Add Conversion for RoomStatus
+            modelBuilder.Entity<Room>()
+                .Property(r => r.Status)
+                .HasConversion<string>();
+
+            // FIX: Add Conversion for ReservationStatus (Critical Fix)
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.Status)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Room>()
                 .Property(r => r.RoomType)
                 .HasConversion<string>();

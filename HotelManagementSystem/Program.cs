@@ -33,7 +33,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoomCleaningRepository, RoomCleaningRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-
+builder.Services.AddScoped<FrontDeskService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoomCleaningService, RoomCleaningService>();

@@ -183,7 +183,16 @@ namespace BLL.Service
 
         private static ReservationDto MapToDto(Reservation reservation)
         {
-            var numberOfNights = (reservation.CheckOutDate - reservation.CheckInDate).Days;
+            // 1. Safely handle Nullable Dates (DateTime?)
+            // If the date is null in DB, we default to DateTime.MinValue or Now to prevent crash
+            var checkIn = reservation.CheckInDate ?? DateTime.MinValue;
+            var checkOut = reservation.CheckOutDate ?? DateTime.MinValue;
+
+            // 2. Safely calculate Days
+            // Now that checkIn/checkOut are standard DateTimes, the subtraction returns a standard TimeSpan
+            var numberOfNights = (checkOut - checkIn).Days;
+            if (numberOfNights < 0) numberOfNights = 0; // Safety check
+
             return new ReservationDto
             {
                 Id = reservation.Id,
@@ -191,8 +200,11 @@ namespace BLL.Service
                 CustomerName = reservation.Customer?.FullName ?? string.Empty,
                 RoomId = reservation.RoomId,
                 RoomNumber = reservation.Room?.RoomNumber ?? string.Empty,
-                CheckInDate = reservation.CheckInDate,
-                CheckOutDate = reservation.CheckOutDate,
+
+                // FIX: Assign the non-nullable variables we created above
+                CheckInDate = checkIn,
+                CheckOutDate = checkOut,
+
                 Status = reservation.Status,
                 NumberOfNights = numberOfNights,
                 TotalPrice = (reservation.Room?.Price ?? 0) * numberOfNights

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DTOs.Enums; // Required
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,7 +21,10 @@ namespace DTOs.Entities
 
         public DateTime? CheckInDate { get; set; }
         public DateTime? CheckOutDate { get; set; }
-        public string Status { get; set; } = "Pending";
+
+        // FIX: Changed from 'string' to 'ReservationStatus' (Enum)
+        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation: 1-to-Many with CheckInOut

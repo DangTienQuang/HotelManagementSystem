@@ -1,11 +1,9 @@
 ﻿using DAL;
 using DTOs.Entities;
+using DTOs.Enums; // Required for Enums
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.Service
 {
@@ -18,110 +16,111 @@ namespace BLL.Service
             _context = context;
         }
 
-        // --- CHECK IN LOGIC ---
-        // Allowed Status Transition: Reserved -> Staying
+        public void ConfirmReservation(int reservationId)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == reservationId);
+            if (reservation == null) throw new Exception("Reservation not found");
+
+            // FIX: Use Enum 'Pending'
+            if (reservation.Status != ReservationStatus.Pending)
+            {
+                throw new InvalidOperationException($"Cannot confirm. Status is {reservation.Status}. Only Pending can be confirmed.");
+            }
+
+            // FIX: Use Enum 'Confirmed' (matches "Reserved" concept)
+            reservation.Status = ReservationStatus.Confirmed;
+            _context.SaveChanges();
+        }
+
+        public void CancelReservation(int reservationId)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == reservationId);
+            if (reservation == null) throw new Exception("Reservation not found");
+
+            // FIX: Use Enum 'Cancelled'
+            reservation.Status = ReservationStatus.Cancelled;
+            _context.SaveChanges();
+        }
+
         public void CheckInGuest(int reservationId, int staffId)
         {
             var reservation = _context.Reservations
                                       .Include(r => r.Room)
                                       .FirstOrDefault(r => r.Id == reservationId);
 
-            if (reservation == null)
-                throw new Exception("Reservation not found.");
+            if (reservation == null) throw new Exception("Reservation not found.");
 
-            // VALIDATION: Strict Status Check
-            // Pending, Cancelled, Left, Staying cannot be checked in again.
-            if (reservation.Status != "Reserved")
+            // FIX: Check Enum 'Confirmed'
+            if (reservation.Status != ReservationStatus.Confirmed)
             {
-                throw new InvalidOperationException($"Cannot Check-In. Current Status is '{reservation.Status}'. Guest must be 'Reserved' to Check-In.");
+                throw new InvalidOperationException($"Guest must be 'Confirmed' to Check-In. Current: {reservation.Status}");
             }
 
-            // VALIDATION: Prevent double check-in records
             if (_context.CheckInOuts.Any(c => c.ReservationId == reservationId))
-            {
-                throw new InvalidOperationException("This reservation already has a Check-In record.");
-            }
+                throw new InvalidOperationException("Check-In record already exists.");
 
             var now = DateTime.Now;
 
-            // 1. Update Reservation
-            reservation.Status = "Staying";
-            reservation.CheckInDate = now; // Set actual Check-In time
+            // 1. Update Reservation: Use 'CheckedIn'
+            reservation.Status = ReservationStatus.CheckedIn;
+            reservation.CheckInDate = now;
 
-            // 2. Update Room
+            // 2. Update Room: Use 'Occupied'
             if (reservation.Room != null)
             {
-                reservation.Room.Status = "Occupied";
+                reservation.Room.Status = RoomStatus.Occupied;
             }
 
-            // 3. Create CheckInOut Record
-            var checkInRecord = new CheckInOut
+            // 3. Create Record
+            _context.CheckInOuts.Add(new CheckInOut
             {
                 ReservationId = reservationId,
                 CheckInBy = staffId,
                 CheckInTime = now
-            };
-
-            _context.CheckInOuts.Add(checkInRecord);
+            });
             _context.SaveChanges();
         }
 
-        // --- CHECK OUT LOGIC ---
-        // Allowed Status Transition: Staying -> Left
         public void CheckOutGuest(int reservationId, int staffId)
         {
             var reservation = _context.Reservations
                                       .Include(r => r.Room)
                                       .FirstOrDefault(r => r.Id == reservationId);
 
-            if (reservation == null)
-                throw new Exception("Reservation not found.");
+            if (reservation == null) throw new Exception("Reservation not found.");
 
-            // VALIDATION 1: Strict Status Check
-            if (reservation.Status != "Staying")
+            // FIX: Check Enum 'CheckedIn'
+            if (reservation.Status != ReservationStatus.CheckedIn)
             {
-                throw new InvalidOperationException($"Cannot Check-Out. Current Status is '{reservation.Status}'. Guest must be 'Staying' to Check-Out.");
+                throw new InvalidOperationException("Guest must be 'CheckedIn' to Check-Out.");
             }
 
-            // Find the active CheckIn record
             var record = _context.CheckInOuts.FirstOrDefault(c => c.ReservationId == reservationId && c.CheckOutTime == null);
-            if (record == null)
-            {
-                throw new Exception("Critical Error: Guest is marked 'Staying' but no active Check-In record was found.");
-            }
+            if (record == null) throw new Exception("No active check-in record found.");
 
             var now = DateTime.Now;
-
-            // VALIDATION 2: Date Check (Check-Out must be AFTER Check-In)
             if (record.CheckInTime.HasValue && now <= record.CheckInTime.Value)
-            {
-                throw new InvalidOperationException($"Invalid Check-Out Time. Check-Out ({now}) cannot be before or equal to Check-In ({record.CheckInTime}).");
-            }
+                throw new InvalidOperationException("Check-Out time cannot be before Check-In time.");
 
-            // 1. Update CheckInOut Record
+            // 1. Update Record
             record.CheckOutTime = now;
             record.CheckOutBy = staffId;
 
-            // 2. Calculate Money (Duration * Price)
+            // 2. Calculate Money
             if (record.CheckInTime.HasValue && reservation.Room != null)
             {
-                var timeSpan = now - record.CheckInTime.Value;
-
-                // Logic: Count days. If less than 1 day, charge minimum 1 day.
-                int daysStayed = (int)Math.Ceiling(timeSpan.TotalDays);
-                if (daysStayed < 1) daysStayed = 1;
-
-                record.TotalAmount = reservation.Room.Price * daysStayed;
+                var days = (int)Math.Ceiling((now - record.CheckInTime.Value).TotalDays);
+                record.TotalAmount = reservation.Room.Price * (days < 1 ? 1 : days);
             }
 
-            // 3. Update Reservation
-            reservation.Status = "Left";
+            // 3. Update Reservation: Use 'CheckedOut'
+            reservation.Status = ReservationStatus.CheckedOut;
             reservation.CheckOutDate = now;
 
-            // 4. Update Room (Mark as Dirty)
+            // 4. Update Room: Use 'Cleaning' (Matches your Enum)
             if (reservation.Room != null)
             {
-                reservation.Room.Status = "Dirty";
+                reservation.Room.Status = RoomStatus.Cleaning;
             }
 
             _context.SaveChanges();
