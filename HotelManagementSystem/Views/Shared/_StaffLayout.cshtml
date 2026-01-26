@@ -1,0 +1,73 @@
+@{
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-0">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="sidebar-header">
+                <h5 class="mb-0 text-white">Staff Panel</h5>
+                <small class="text-muted">Hotel Management</small>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "StaffDashboard" ? "active" : "")" 
+                       asp-controller="StaffDashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "FrontDesk" ? "active" : "")" 
+                       asp-controller="FrontDesk" asp-action="Index">
+                        <i class="bi bi-display"></i> Front Desk
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "StaffTask" ? "active" : "")" 
+                       asp-controller="StaffTask" asp-action="MyTasks">
+                        <i class="bi bi-list-task"></i> My Tasks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Room" ? "active" : "")" 
+                       asp-controller="Room" asp-action="Index">
+                        <i class="bi bi-door-closed"></i> Rooms
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "RoomCleaning" ? "active" : "")" 
+                       asp-controller="RoomCleaning" asp-action="Index">
+                        <i class="bi bi-stars"></i> Cleaning
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Maintenance" ? "active" : "")" 
+                       asp-controller="Maintenance" asp-action="Index">
+                        <i class="bi bi-tools"></i> Maintenance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")" 
+                       asp-controller="User" asp-action="Index">
+                        <i class="bi bi-people-fill"></i> Users
+                    </a>
+                </li>
+                 <li class="nav-item border-top mt-3 pt-3">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-house-door"></i> Back to Home
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main-content">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

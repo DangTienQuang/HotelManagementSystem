@@ -23,6 +23,15 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.4)),
+    url('https://t3.ftcdn.net/jpg/04/06/67/82/240_F_406678288_soUy6mmdiBdwwFDYBwUNMdNApXqWj2tS.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: #333;
+  /* Ensure text remains readable */
 }
 
 /* ===========================

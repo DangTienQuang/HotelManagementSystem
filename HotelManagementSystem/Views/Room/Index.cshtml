@@ -4,36 +4,92 @@
     ViewData["Title"] = "Rooms";
 }
 
-<h1>Rooms</h1>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">Room Management</h1>
+            <p class="text-muted">Manage hotel rooms and their details</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Create New Room
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.RoomNumber)</th>
-            <th>@Html.DisplayNameFor(model => model.RoomType)</th>
-            <th>@Html.DisplayNameFor(model => model.Capacity)</th>
-            <th>@Html.DisplayNameFor(model => model.Price)</th>
-            <th>@Html.DisplayNameFor(model => model.Status)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>@Html.DisplayFor(modelItem => item.RoomNumber)</td>
-            <td>@Html.DisplayFor(modelItem => item.RoomType)</td>
-            <td>@Html.DisplayFor(modelItem => item.Capacity)</td>
-            <td>@item.Price.ToString("N0") &#8363;</td>
-            <td>@Html.DisplayFor(modelItem => item.Status)</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light border-bottom">
+                        <tr>
+                            <th class="ps-4 text-secondary text-uppercase font-weight-bold small">Room Number</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Type</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Capacity</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Price</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Status</th>
+                            <th class="text-end pe-4 text-secondary text-uppercase font-weight-bold small">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">
+                                    @Html.DisplayFor(modelItem => item.RoomNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.RoomType)
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-people-fill me-1"></i> @item.Capacity
+                                    </span>
+                                </td>
+                                <td class="fw-bold text-primary">
+                                    @item.Price.ToString("N0") &#8363;
+                                </td>
+                                <td>
+                                    @if(item.Status.ToString() == "Available")
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Available</span>
+                                    }
+                                    else if(item.Status.ToString() == "Occupied")
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Occupied</span>
+                                    }
+                                    else if(item.Status.ToString() == "Reserved")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">Reserved</span>
+                                    }
+                                    else if(item.Status.ToString() == "Maintenance")
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">Maintenance</span>
+                                    }
+                                    else if(item.Status.ToString() == "Cleaning")
+                                    {
+                                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">Cleaning</span>
+                                    }
+                                    else
+                                    {
+                                         <span class="badge bg-dark bg-opacity-10 text-dark px-3 py-2 rounded-pill">@item.Status</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

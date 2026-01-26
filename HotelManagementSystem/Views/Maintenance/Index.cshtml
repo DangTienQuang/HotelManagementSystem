@@ -5,70 +5,102 @@
     ViewData["Title"] = "Maintenance Management";
 }
 
-<h1>Maintenance Management</h1>
+<div class="container-fluid py-4">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 mb-1">Maintenance Management</h1>
+            <p class="text-muted">Monitor and manage room maintenance status</p>
+        </div>
+    </div>
 
-<table class="table table-bordered table-hover mt-3">
-    <thead class="thead-dark">
-        <tr>
-            <th>Room Number</th>
-            <th>Type</th>
-            <th>Current Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.RoomNumber</td>
-                <td>@item.RoomType</td>
-                <td>
-                    @if(item.Status == RoomStatus.Maintenance)
-                    {
-                        <span class="badge bg-secondary">Maintenance</span>
-                    }
-                    else if(item.Status == RoomStatus.Available)
-                    {
-                        <span class="badge bg-success">Available</span>
-                    }
-                    else if(item.Status == RoomStatus.Occupied)
-                    {
-                        <span class="badge bg-danger">Occupied</span>
-                    }
-                    else if(item.Status == RoomStatus.Cleaning)
-                    {
-                        <span class="badge bg-info">Cleaning</span>
-                    }
-                    else 
-                    {
-                        <span class="badge bg-dark">@item.Status</span>
-                    }
-                </td>
-                <td>
-                    @if (item.Status == RoomStatus.Available)
-                    {
-                        <form asp-action="StartMaintenance" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-tools"></i> Start Maintenance
-                            </button>
-                        </form>
-                    }
-                    else if (item.Status == RoomStatus.Maintenance)
-                    {
-                        <form asp-action="FinishMaintenance" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-check"></i> Finish
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="text-muted" style="font-size: 0.9em;">Cannot modify (Room is busy)</span>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light border-bottom">
+                        <tr>
+                            <th class="ps-4 text-secondary text-uppercase font-weight-bold small">Room Number</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Type</th>
+                            <th class="text-secondary text-uppercase font-weight-bold small">Current Status</th>
+                            <th class="text-end pe-4 text-secondary text-uppercase font-weight-bold small">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">@item.RoomNumber</td>
+                                <td>@item.RoomType</td>
+                                <td>
+                                    @if(item.Status == RoomStatus.Maintenance)
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                                            <i class="bi bi-tools me-1"></i> Maintenance
+                                        </span>
+                                    }
+                                    else if(item.Status == RoomStatus.Available)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Available</span>
+                                    }
+                                    else if(item.Status == RoomStatus.Occupied)
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Occupied</span>
+                                    }
+                                    else if(item.Status == RoomStatus.Cleaning)
+                                    {
+                                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">Cleaning</span>
+                                    }
+                                    else 
+                                    {
+                                        <span class="badge bg-dark bg-opacity-10 text-dark px-3 py-2 rounded-pill">@item.Status</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (item.Status == RoomStatus.Available)
+                                    {
+                                        <form asp-action="StartMaintenance" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-warning btn-sm shadow-sm" title="Start Maintenance">
+                                                <i class="bi bi-tools"></i> Start Maintenance
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (item.Status == RoomStatus.Maintenance)
+                                    {
+                                        <form asp-action="FinishMaintenance" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm shadow-sm" title="Finish Maintenance">
+                                                <i class="bi bi-check-lg"></i> Finish
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-light btn-sm text-muted border-0" disabled>
+                                            <i class="bi bi-lock"></i> Room Busy
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
