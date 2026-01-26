@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using DTOs.Enums;
 
 namespace DTOs.Entities
 {
@@ -19,9 +18,9 @@ namespace DTOs.Entities
         [ForeignKey("ReservedBy")]
         public virtual User? ReservedByUser { get; set; }
 
-        public DateTime CheckInDate { get; set; }
-        public DateTime CheckOutDate { get; set; }
-        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
+        public DateTime? CheckInDate { get; set; }
+        public DateTime? CheckOutDate { get; set; }
+        public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation: 1-to-Many with CheckInOut

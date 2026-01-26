@@ -7,6 +7,7 @@ namespace DAL.Interfaces
 {
     public interface IReservationRepository : IGenericRepository<Reservation>
     {
+        public IEnumerable<Reservation> GetPendingReservations();
         Task<IEnumerable<Reservation>> GetReservationsByUsernameAsync(string username);
         Task<Reservation?> GetReservationWithDetailsAsync(int id);
         Task<IEnumerable<Reservation>> GetReservationsByRoomIdAsync(int roomId);

@@ -26,7 +26,15 @@ namespace DAL.Repository
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
-
+        public IEnumerable<Reservation> GetPendingReservations()
+        {
+            return _context.Reservations
+                .Include(r => r.Customer)
+                .Include(r => r.Room)
+                .Where(r => r.Status == "Pending") // <--- Only fetches requests waiting for you
+                .OrderBy(r => r.CreatedAt)
+                .ToList();
+        }
         public async Task<Reservation?> GetReservationWithDetailsAsync(int id)
         {
             return await _context.Reservations
