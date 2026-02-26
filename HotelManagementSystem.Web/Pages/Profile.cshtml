@@ -1,0 +1,82 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.ProfileModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <i class="bi bi-person-badge fs-1"></i>
+                    <h4 class="mt-2">@Model.StaffInfo?.User.FullName</h4>
+                    <span class="badge bg-light text-primary">@Model.StaffInfo?.Position</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Ca trực:</span>
+                            <span class="fw-bold">@Model.StaffInfo?.Shift</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Ngày vào làm:</span>
+                            <span>@Model.StaffInfo?.HireDate.ToString("dd/MM/yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Email:</span>
+                            <span class="small">@Model.StaffInfo?.User.Email</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-list-task text-primary"></i> Công việc đang được giao</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.MyTasks.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-emoji-smile text-muted fs-1"></i>
+                            <p class="text-muted">Bạn không có công việc nào đang chờ xử lý!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Phòng</th>
+                                        <th>Mô tả</th>
+                                        <th>Ưu tiên</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in Model.MyTasks)
+                                    {
+                                        <tr>
+                                            <td><span class="badge bg-secondary">@task.Room.RoomNumber</span></td>
+                                            <td class="small">@task.Description</td>
+                                            <td>
+                                                <span class="badge @(task.Priority == "High" ? "bg-danger" : "bg-info")">@task.Priority</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success">Hoàn thành</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

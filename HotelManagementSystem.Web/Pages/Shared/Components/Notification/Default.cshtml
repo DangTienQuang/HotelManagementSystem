@@ -1,0 +1,29 @@
+﻿@model List<HotelManagementSystem.Data.Models.Notification>
+
+<div class="dropdown me-3">
+    <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
+        <i class="bi bi-bell fs-5"></i>
+        @if (ViewBag.UnreadCount > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @ViewBag.UnreadCount
+            </span>
+        }
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+        <li class="dropdown-header border-bottom">Thông báo mới nhất</li>
+        @if (!Model.Any())
+        {
+            <li class="p-3 text-center text-muted small">Không có thông báo nào</li>
+        }
+        @foreach (var noti in Model)
+        {
+            <li>
+                <a class="dropdown-item p-2 @(noti.IsRead ? "" : "bg-light fw-bold")" href="#">
+                    <div class="small">@noti.Message</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">@noti.CreatedAt.ToString("HH:mm dd/MM")</div>
+                </a>
+            </li>
+        }
+    </ul>
+</div>

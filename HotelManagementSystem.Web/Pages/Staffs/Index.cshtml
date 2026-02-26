@@ -1,0 +1,111 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Staffs.IndexModel
+@{
+    ViewData["Title"] = "Quản lý nhân sự";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-people-fill text-primary"></i> DANH SÁCH NHÂN VIÊN</h2>
+            <p class="text-muted">Quản lý tài khoản, chức vụ và ca trực của toàn bộ hệ thống</p>
+        </div>
+        <a asp-page="/Register" class="btn btn-primary shadow-sm">
+            <i class="bi bi-person-plus-fill"></i> Thêm nhân viên mới
+        </a>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Nhân viên</th>
+                            <th>Username</th>
+                            <th>Chức vụ</th>
+                            <th>Ca trực</th>
+                            <th>Ngày gia nhập</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.StaffList)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">@item.User?.FullName</div>
+                                            <small class="text-muted">@item.User?.Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code class="text-dark fw-bold">@item.User?.Username</code></td>
+                                <td>
+                                    @{
+                                        var badgeClass = item.Position switch
+                                        {
+                                            "Admin" => "bg-danger",
+                                            "Receptionist" => "bg-success",
+                                            "Technician" => "bg-info text-dark",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass px-3 py-2">@item.Position</span>
+                                </td>
+                                <td>
+                                    <span class="text-uppercase small fw-bold">
+                                        <i class="bi bi-clock"></i> @item.Shift
+                                    </span>
+                                </td>
+                                <td>@item.User?.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-outline-primary" title="Sửa thông tin">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?');" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table thead th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: none;
+    }
+
+    .table tbody td {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .btn-group .btn {
+        border-radius: 8px;
+        margin-left: 5px;
+    }
+</style>

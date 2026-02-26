@@ -15,7 +15,7 @@ public partial class HotelManagementDbContext : DbContext
         : base(options)
     {
     }
-
+    public DbSet<HotelService> HotelServices { get; set; }
     public virtual DbSet<CheckInOut> CheckInOuts { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -39,6 +39,14 @@ public partial class HotelManagementDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Room>()
+        .Property(r => r.BasePrice)
+        .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<HotelService>()
+            .Property(s => s.Price)
+            .HasColumnType("decimal(18,2)");
+
         modelBuilder.Entity<CheckInOut>(entity =>
         {
             entity.HasIndex(e => e.CheckInBy, "IX_CheckInOuts_CheckInBy");

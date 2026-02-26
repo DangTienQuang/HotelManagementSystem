@@ -1,0 +1,80 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Admin.RoomsModel
+@{
+    ViewData["Title"] = "Cấu hình phòng";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-door-open-fill text-primary"></i> QUẢN LÝ PHÒNG</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal">
+            <i class="bi bi-plus-circle"></i> Thêm phòng mới
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Số phòng</th>
+                        <th>Loại phòng</th>
+                        <th>Giá cơ bản (VND)</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var room in Model.Rooms)
+                    {
+                        <tr>
+                            <td class="fw-bold fs-5">@room.RoomNumber</td>
+                            <td><span class="badge bg-info text-dark">@room.RoomType</span></td>
+                            <td class="text-primary fw-bold">@room.BasePrice.ToString("N0")</td>
+                            <td>
+                                <span class="badge @(room.Status == "Available" ? "bg-success" : "bg-danger")">@room.Status</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary">Sửa giá/Loại</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="roomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" asp-page-handler="SaveRoom" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thông tin phòng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" asp-for="NewRoom.Id" />
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số phòng</label>
+                    <input asp-for="NewRoom.RoomNumber" class="form-control" placeholder="Ví dụ: 101" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Loại phòng</label>
+                    <select asp-for="NewRoom.RoomType" class="form-select">
+                        <option value="Single">Single (Đơn)</option>
+                        <option value="Double">Double (Đôi)</option>
+                        <option value="Suite">Suite (Vip)</option>
+                        <option value="Family">Family (Gia đình)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Giá phòng (VND)</label>
+                    <input asp-for="NewRoom.BasePrice" type="number" class="form-control" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary w-100">Lưu thông tin</button>
+            </div>
+        </form>
+    </div>
+</div>

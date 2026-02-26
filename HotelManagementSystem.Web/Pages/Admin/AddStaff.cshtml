@@ -1,0 +1,71 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Admin.AddStaffModel
+@{
+    ViewData["Title"] = "Thêm nhân viên";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-person-badge"></i> ĐĂNG KÝ NHÂN VIÊN MỚI</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2">1. Thông tin tài khoản</h6>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Họ và Tên</label>
+                                <input asp-for="Input.FullName" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Tên đăng nhập (Username)</label>
+                                <input asp-for="Input.UserName" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Email</label>
+                                <input asp-for="Input.Email" type="email" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Mật khẩu</label>
+                                <input asp-for="Input.Password" type="password" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2">2. Thông tin công việc (Staff Details)</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold">Vị trí (Position)</label>
+                                <input asp-for="Input.Position" class="form-control" placeholder="Ví dụ: Lễ tân, Quản lý..." required />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold">Ca làm việc (Shift)</label>
+                                <select asp-for="Input.Shift" class="form-select">
+                                    <option value="Sáng">Ca Sáng (06:00 - 14:00)</option>
+                                    <option value="Chiều">Ca Chiều (14:00 - 22:00)</option>
+                                    <option value="Đêm">Ca Đêm (22:00 - 06:00)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold">Ngày vào làm</label>
+                                <input asp-for="Input.HireDate" type="date" class="form-control" required />
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" asp-for="Input.IsAdmin">
+                                    <label class="form-check-label fw-bold text-danger">Cấp quyền Quản trị viên (Admin)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-page="/Index" class="btn btn-light border">Hủy</a>
+                            <button type="submit" class="btn btn-primary px-5 shadow">TẠO NHÂN VIÊN</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

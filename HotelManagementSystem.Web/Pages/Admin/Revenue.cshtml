@@ -1,0 +1,100 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Admin.RevenueModel
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-graph-up-arrow text-success"></i> BÁO CÁO DOANH THU</h2>
+        <div class="btn-group shadow-sm">
+            <button class="btn btn-outline-secondary btn-sm">Tháng này</button>
+            <button class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-dark text-white p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase small opacity-75">Tổng doanh thu thực tế</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalRevenue.ToString("N0") <small class="fs-6">VND</small></h2>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1 text-warning"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h6 class="fw-bold mb-3 text-muted">Tỷ trọng nguồn thu</h6>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Tiền phòng (@Model.TotalBookings lượt)</span>
+                        <span class="fw-bold">@Model.RoomRevenue.ToString("N0") VND</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Dịch vụ khác</span>
+                        <span class="fw-bold">@Model.ServiceRevenue.ToString("N0") VND</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-3 fw-bold border-0">
+            <i class="bi bi-clock-history text-primary"></i> 10 giao dịch hoàn thành gần nhất
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase">
+                    <tr>
+                        <th class="ps-4">Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Phòng</th>
+                        <th>Ngày trả phòng</th>
+                        <th class="text-end pe-4">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RecentTransactions)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold">#RES-@item.Id</td>
+                            <td>@item.Customer?.FullName</td>
+                            <td><span class="badge bg-light text-dark border">@item.Room?.RoomNumber</span></td>
+                            <td>@item.CheckOutDate.ToString("dd/MM/yyyy")</td>
+                            <td class="text-end pe-4 fw-bold text-success">
+                                @{
+                                    var days = (item.CheckOutDate - item.CheckInDate).Days;
+                                    if (days <= 0) days = 1;
+                                    var amount = days * (item.Room?.BasePrice ?? 0);
+                                }
+                                @amount.ToString("N0") VND
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.RecentTransactions.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                Chưa có dữ liệu doanh thu (Cần có đơn đặt phòng ở trạng thái 'CheckedOut')
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

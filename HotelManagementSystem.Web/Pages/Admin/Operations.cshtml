@@ -1,0 +1,112 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Admin.OperationsModel
+@{
+    ViewData["Title"] = "Điều hành khách sạn";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-gear-wide-connected text-primary"></i> GIÁM SÁT VẬN HÀNH</h2>
+        <span class="badge bg-light text-dark border shadow-sm p-2">
+            <i class="bi bi-calendar3"></i> Hôm nay: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+        </span>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm py-3 border-start border-primary border-4">
+                <small class="text-muted fw-bold">TỔNG SỐ PHÒNG</small>
+                <h2 class="fw-bold mb-0">@Model.TotalRooms</h2>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm py-3 border-start border-success border-4">
+                <small class="text-muted fw-bold text-success">PHÒNG TRỐNG</small>
+                <h2 class="fw-bold mb-0">@Model.AvailableRooms</h2>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm py-3 border-start border-danger border-4">
+                <small class="text-muted fw-bold text-danger">ĐANG BẢO TRÌ</small>
+                <h2 class="fw-bold mb-0 text-danger">@Model.MaintenanceRooms</h2>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm py-3 border-start border-warning border-4">
+                <small class="text-muted fw-bold text-warning">PHÒNG CÓ KHÁCH</small>
+                <h2 class="fw-bold mb-0">@Model.OccupiedRooms</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-tools"></i> Tác vụ bảo trì chờ duyệt</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-uppercase">
+                                <th>Phòng</th>
+                                <th>Nội dung hư hỏng</th>
+                                <th>Độ ưu tiên</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end pe-3">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.PendingTasks)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-primary ps-3">Phòng @task.Room?.RoomNumber</td>
+                                    <td>@task.Description</td>
+                                    <td>
+                                        <span class="badge @(task.Priority == "High" ? "bg-danger" : "bg-warning text-dark")">
+                                            @task.Priority
+                                        </span>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">@task.Status</span></td>
+                                    <td class="text-end pe-3">
+                                        <form method="post" asp-page-handler="CompleteTask" asp-route-id="@task.Id">
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">
+                                                Duyệt xong <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.PendingTasks.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted small">
+                                        <i class="bi bi-emoji-smile d-block fs-2"></i>
+                                        Khách sạn hiện không có hỏng hóc nào cần sửa chữa.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card shadow-sm border-0 border-top border-primary border-4">
+                <div class="card-body">
+                    <h6 class="fw-bold"><i class="bi bi-bell-fill text-warning"></i> Ghi chú Admin</h6>
+                    <p class="small text-muted">Hệ thống sẽ tự động mở lại phòng sau khi Admin nhấn "Duyệt xong". Nhân viên buồng phòng nên kiểm tra lại vệ sinh trước khi khách mới Check-in.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

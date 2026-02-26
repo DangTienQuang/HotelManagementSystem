@@ -1,0 +1,50 @@
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using HotelManagementSystem.Data.Context;
+
+namespace HotelManagementSystem.Web.Pages
+{
+    public class LoginModel : PageModel
+    {
+        private readonly HotelManagementDbContext _context;
+        public LoginModel(HotelManagementDbContext context) => _context = context;
+
+        [BindProperty]
+        public LoginInput LoginData { get; set; } = new();
+
+        public class LoginInput
+        {
+            public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == LoginData.Username && u.PasswordHash == LoginData.Password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Sai tài khoản hoặc mật khẩu.");
+                return Page();
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                // Dòng quan trọng để trang MyTasks lọc đúng việc:
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToPage("/Index");
+        }
+    }
+}

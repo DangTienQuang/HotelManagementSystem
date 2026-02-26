@@ -1,0 +1,42 @@
+﻿using HotelManagementSystem.Business;
+using HotelManagementSystem.Data.Context;
+using HotelManagementSystem.Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+
+namespace HotelManagementSystem.Web.Pages
+{
+    [Authorize]
+    public class ProfileModel : PageModel
+    {
+        private readonly StaffService _staffService;
+        private readonly HotelManagementDbContext _context; // Dùng để query nhanh task
+
+        public ProfileModel(StaffService staffService, HotelManagementDbContext context)
+        {
+            _staffService = staffService;
+            _context = context;
+        }
+
+        // Thay vì public Staff? StaffInfo { get; set; }
+        public HotelManagementSystem.Data.Models.Staff? StaffInfo { get; set; }
+        public List<MaintenanceTask> MyTasks { get; set; } = new();
+
+        public async Task OnGetAsync()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            // 1. Lấy thông tin từ bảng Staff
+            StaffInfo = await _staffService.GetStaffByUserId(userId);
+
+            // 2. Lấy danh sách việc được giao (Maintenance)
+            MyTasks = await _context.MaintenanceTasks
+                .Include(t => t.Room)
+                .Where(t => t.AssignedTo == userId && t.Status != "Completed")
+                .ToListAsync();
+        }
+    }
+}

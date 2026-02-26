@@ -1,0 +1,52 @@
+﻿@page
+@using System.Security.Claims
+@model HotelManagementSystem.Web.Pages.Staff.MyTasksModel
+@{
+    ViewData["Title"] = "Công việc của tôi";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-check"></i> DANH SÁCH PHÒNG CẦN DỌN</h5>
+        </div>
+        <div class="card-body">
+            @* Sửa lỗi FindFirstValue ở đây *@
+            @{
+                var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var currentId = userClaim != null ? userClaim.Value : "N/A";
+            }
+            <div class="alert alert-light border small mb-3">
+                ID nhân viên: <strong>@currentId</strong>
+            </div>
+
+            @if (Model.MyCleaningTasks == null || !Model.MyCleaningTasks.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-emoji-sunglasses text-muted display-1"></i>
+                    <p class="mt-3 fs-5 text-muted">Tuyệt vời! Bạn không còn phòng nào cần dọn.</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var task in Model.MyCleaningTasks)
+                {
+                    <div class="card mb-3 border-start border-info border-5 shadow-sm">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="fw-bold mb-0 text-dark">Phòng @task.Room?.RoomNumber</h3>
+                                <p class="text-muted mb-0">Loại: @task.Room?.RoomType</p>
+                            </div>
+
+                            <form method="post" asp-page-handler="Complete" asp-route-taskId="@task.Id">
+                                <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill px-4 shadow">
+                                    <i class="bi bi-check-circle-fill"></i> XÁC NHẬN XONG
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

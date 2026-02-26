@@ -1,0 +1,50 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Maintenance.CreateTaskModel
+@{
+    ViewData["Title"] = "Giao việc bảo trì";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h4><i class="bi bi-tools"></i> Tạo yêu cầu bảo trì & Phân công</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Chọn phòng cần sửa chữa</label>
+                        <select asp-for="SelectedRoomId" asp-items="Model.RoomList" class="form-select">
+                            <option value="">-- Chọn số phòng --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giao cho nhân viên kỹ thuật</label>
+                        <select asp-for="SelectedStaffUserId" asp-items="Model.StaffList" class="form-select">
+                            <option value="">-- Chọn nhân viên --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mức độ ưu tiên</label>
+                    <select asp-for="Priority" class="form-select">
+                        <option value="Low">Thấp (Bình thường)</option>
+                        <option value="Medium">Trung bình (Trong ngày)</option>
+                        <option value="High">Cao (Khẩn cấp)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mô tả chi tiết hỏng hóc</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Ví dụ: Hỏng điều hòa, rò rỉ nước bồn tắm..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-page="/Index" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-danger px-4">Xác nhận & Gửi thông báo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
