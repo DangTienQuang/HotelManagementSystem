@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.Business;
+using HotelManagementSystem.Business;
 using HotelManagementSystem.Data.Context;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Cấu hình DbContext
 builder.Services.AddDbContext<HotelManagementDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Cấu hình Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -15,6 +15,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Login";
         options.AccessDeniedPath = "/AccessDenied";
+        // Fix for infinite redirect loop:
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = 403;
+            return Task.CompletedTask;
+        };
     });
 
 builder.Services.AddRazorPages();
@@ -38,6 +44,9 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<HotelManagementSystem.Data.Context.HotelManagementDbContext>();
+
+    // Ensure DB Created
+    context.Database.EnsureCreated();
 
     // ... (Phần A: Xử lý tài khoản trùng giữ nguyên) ...
 
@@ -69,6 +78,14 @@ using (var scope = app.Services.CreateScope())
             Email = "staff_a@luxuryhotel.com" // THÊM DÒNG NÀY
         };
         context.Users.Add(userA);
+        context.SaveChanges();
+    }
+
+    // Ensure rooms exist for testing if none
+    if (!context.Rooms.Any())
+    {
+        context.Rooms.Add(new HotelManagementSystem.Data.Models.Room { RoomNumber = "101", RoomType = "Standard", BasePrice = 500000, Price = 500000, Status = "Available" });
+        context.Rooms.Add(new HotelManagementSystem.Data.Models.Room { RoomNumber = "102", RoomType = "Deluxe", BasePrice = 800000, Price = 800000, Status = "Available" });
         context.SaveChanges();
     }
 
