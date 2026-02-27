@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementSystem.Data.Migrations
 {
     [DbContext(typeof(HotelManagementDbContext))]
-    [Migration("20260227033203_AddMissingMaintenanceFields")]
-    partial class AddMissingMaintenanceFields
+    [Migration("20260227074002_UpdateMaintenanceAndUserSchema")]
+    partial class UpdateMaintenanceAndUserSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,11 +89,22 @@ namespace HotelManagementSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });

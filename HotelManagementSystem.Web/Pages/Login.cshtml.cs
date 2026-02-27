@@ -11,7 +11,11 @@ namespace HotelManagementSystem.Web.Pages
     public class LoginModel : PageModel
     {
         private readonly HotelManagementDbContext _context;
-        public LoginModel(HotelManagementDbContext context) => _context = context;
+
+        public LoginModel(HotelManagementDbContext context)
+        {
+            _context = context;
+        }
 
         [BindProperty]
         public LoginInput LoginData { get; set; } = new();
@@ -24,8 +28,11 @@ namespace HotelManagementSystem.Web.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Check User table (Staff / Technician / Admin)
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == LoginData.Username && u.PasswordHash == LoginData.Password);
+                .FirstOrDefaultAsync(u =>
+                    u.Username == LoginData.Username &&
+                    u.PasswordHash == LoginData.Password);
 
             if (user != null)
             {
@@ -36,44 +43,56 @@ namespace HotelManagementSystem.Web.Pages
                     new Claim(ClaimTypes.Role, user.Role)
                 };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                var claimsIdentity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    claimsPrincipal);
 
                 if (user.Role == "Staff")
-                {
                     return RedirectToPage("/Staffs/MyTasks");
-                }
 
                 if (user.Role == "Technician")
-                {
                     return RedirectToPage("/Staffs/MaintenanceTasks");
-                }
 
                 return RedirectToPage("/Index");
             }
 
+            // Check Customer table
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Username == LoginData.Username && c.PasswordHash == LoginData.Password);
+                .FirstOrDefaultAsync(c =>
+                    c.Username == LoginData.Username &&
+                    c.PasswordHash == LoginData.Password);
 
-            if (customer == null)
+            if (customer != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Name, customer.Username),
+                    new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
+                    new Claim(ClaimTypes.Role, "Consumer")
                 };
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, customer.Username),
-                new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
-                new Claim(ClaimTypes.Role, "Consumer")
-            };
+                var claimsIdentity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-            return RedirectToPage("/MyBookings");
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    claimsPrincipal);
+
+                return RedirectToPage("/MyBookings");
+            }
+
+            // If login fails
+            ModelState.AddModelError(string.Empty, "Invalid username or password.");
+            return Page();
         }
     }
 }

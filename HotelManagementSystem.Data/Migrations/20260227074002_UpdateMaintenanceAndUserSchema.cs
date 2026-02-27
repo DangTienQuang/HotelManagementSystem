@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HotelManagementSystem.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMissingMaintenanceFields : Migration
+    public partial class UpdateMaintenanceAndUserSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,6 +19,8 @@ namespace HotelManagementSystem.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdentityNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -312,6 +314,12 @@ namespace HotelManagementSystem.Data.Migrations
                 name: "IX_CheckInOuts_ReservationId",
                 table: "CheckInOuts",
                 column: "ReservationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Username",
+                table: "Customers",
+                column: "Username",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MaintenanceTasks_AssignedTo",
