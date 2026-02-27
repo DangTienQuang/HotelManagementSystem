@@ -24,22 +24,22 @@
                     <form method="post">
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Họ và Tên <span class="text-danger">*</span></label>
-                            <input asp-for="Input.FullName" class="form-control" placeholder="Nguyễn Văn A" required />
+                            <input asp-for="Customer.FullName" class="form-control" placeholder="Nguyễn Văn A" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Số điện thoại <span class="text-danger">*</span></label>
-                            <input asp-for="Input.Phone" class="form-control" placeholder="09xxxxxxxx" required />
+                            <input asp-for="Customer.Phone" class="form-control" placeholder="09xxxxxxxx" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Số CCCD / Passport <span class="text-danger">*</span></label>
-                            <input asp-for="Input.IdentityNumber" class="form-control" placeholder="Nhập số giấy tờ" required />
+                            <input asp-for="Customer.IdentityNumber" class="form-control" placeholder="Nhập số giấy tờ" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Địa chỉ Email <span class="text-danger">*</span></label>
-                            <input asp-for="Input.Email" type="email" class="form-control" placeholder="email@vi-du.com" required />
+                            <input asp-for="Customer.Email" type="email" class="form-control" placeholder="email@vi-du.com" required />
                         </div>
 
                         <div class="mb-3">
@@ -62,7 +62,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Địa chỉ thường trú <span class="text-danger">*</span></label>
-                            <textarea asp-for="Input.Address" class="form-control" rows="2" placeholder="Tỉnh/Thành phố..." required></textarea>
+                            <textarea asp-for="Customer.Address" class="form-control" rows="2" placeholder="Tỉnh/Thành phố..." required></textarea>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
