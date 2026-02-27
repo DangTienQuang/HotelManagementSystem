@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using HotelManagementSystem.Data.Context;
-using HotelManagementSystem.Models;
+using HotelManagementSystem.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HotelManagementSystem.Web.Pages.Staffs
@@ -18,7 +18,7 @@ namespace HotelManagementSystem.Web.Pages.Staffs
         }
 
         // Danh sách nhân viên hiển thị trên giao diện
-        public IList<HotelManagementSystem.Models.Staff> StaffList { get; set; } = default!;
+        public IList<HotelManagementSystem.Data.Models.Staff> StaffList { get; set; } = default!;
 
         public async Task OnGetAsync()
         {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using HotelManagementSystem.Data.Context;
-using HotelManagementSystem.Models;
+using HotelManagementSystem.Data.Models;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 

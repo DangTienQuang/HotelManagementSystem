@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HotelManagementSystem.Models
+namespace HotelManagementSystem.Data.Models
 {
     public class HotelService
     {

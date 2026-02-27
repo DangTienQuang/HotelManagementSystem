@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HotelManagementSystem.Data.Context;
-using HotelManagementSystem.Models;
+using HotelManagementSystem.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagementSystem.Web.Pages
