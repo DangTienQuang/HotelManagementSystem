@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementSystem.Data.Migrations
 {
     [DbContext(typeof(HotelManagementDbContext))]
-    [Migration("20260227033203_AddMissingMaintenanceFields")]
-    partial class AddMissingMaintenanceFields
+    [Migration("20260227082947_UpdateMaintenanceAndUserSchema")]
+    partial class UpdateMaintenanceAndUserSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
