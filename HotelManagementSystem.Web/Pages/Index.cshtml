@@ -12,6 +12,8 @@
             <span class="text-danger"><i class="bi bi-circle-fill"></i> Có khách</span>
             <span class="text-warning"><i class="bi bi-circle-fill"></i> Chờ dọn</span>
             <span class="text-info"><i class="bi bi-circle-fill"></i> Đang dọn</span>
+            @* Thêm chú thích cho trạng thái Bảo trì *@
+            <span class="text-secondary" style="color: #6c757d;"><i class="bi bi-circle-fill"></i> Bảo trì</span>
         </div>
     </div>
 
@@ -24,7 +26,8 @@
                 "Occupied" => "danger",
                 "Dirty" => "warning",
                 "Cleaning" => "info",
-                _ => "secondary"
+                "Maintenance" => "secondary", // Màu xám cho bảo trì
+                _ => "dark"
             };
 
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -34,10 +37,23 @@
                     </div>
                     <div class="card-body d-flex flex-column text-center p-3">
                         <p class="mb-1 fw-bold">@item.RoomType</p>
+
+                        @* Hiển thị Badge trạng thái chi tiết *@
+                        <div class="mb-3">
+                            @if (item.Status == "Maintenance")
+                            {
+                                <span class="badge bg-secondary text-white uppercase small">Đang bảo trì</span>
+                            }
+                        </div>
+
                         <div class="d-grid gap-2 mt-auto">
                             @if (item.Status == "Available")
                             {
                                 <a asp-page="/Admin/Create" asp-route-roomId="@item.Id" class="btn btn-sm btn-outline-success rounded-pill fw-bold">ĐẶT PHÒNG</a>
+                                @* Thêm nút chuyển sang bảo trì khi phòng đang trống *@
+                                <a asp-page="/Admin/AssignMaintenance" asp-route-roomId="@item.Id" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0">
+                                    <i class="bi bi-tools"></i> BẢO TRÌ
+                                </a>
                             }
                             else if (item.Status == "Occupied")
                             {
@@ -46,13 +62,24 @@
                             else if (item.Status == "Dirty")
                             {
                                 <a asp-page="/Admin/AssignCleaning" asp-route-roomId="@item.Id" class="btn btn-sm btn-warning rounded-pill text-dark fw-bold">
-                                    <i class="bi bi-person-plus"></i> PHÂN CÔNG
+                                    <i class="bi bi-person-plus"></i> PHÂN CÔNG DỌN
+                                </a>
+                                @* Thêm nút bảo trì nếu phòng bẩn nhưng phát hiện hỏng hóc *@
+                                <a asp-page="/Admin/AssignMaintenance" asp-route-roomId="@item.Id" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold border-0">
+                                    <i class="bi bi-tools"></i> BẢO TRÌ
                                 </a>
                             }
                             else if (item.Status == "Cleaning")
                             {
                                 <button class="btn btn-sm btn-info text-white rounded-pill fw-bold disabled">
                                     <i class="bi bi-hourglass-split"></i> ĐANG DỌN...
+                                </button>
+                            }
+                            else if (item.Status == "Maintenance")
+                            {
+                                @* Trạng thái bảo trì: Chỉ hiển thị thông báo, chờ kỹ thuật xác nhận xong *@
+                                <button class="btn btn-sm btn-secondary text-white rounded-pill fw-bold disabled">
+                                    <i class="bi bi-wrench-adjustable"></i> ĐANG SỬA...
                                 </button>
                             }
                         </div>

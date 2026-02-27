@@ -45,7 +45,6 @@
             flex: 1;
         }
 
-        /* Hiệu ứng focus cho dropdown */
         .dropdown-item:active {
             background-color: #ffc107;
             color: #000;
@@ -67,7 +66,6 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @* 1. DÀNH CHO KHÁCH CHƯA ĐĂNG NHẬP *@
                         @if (!User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
@@ -80,20 +78,19 @@
                         {
                             var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                             var isUserIdParsed = int.TryParse(userIdValue, out var currentUserId);
-                            var isStaffUser = User.IsInRole("Staff") || User.IsInRole("Technician");
-                            var pendingCleaningTasks = (isStaffUser && isUserIdParsed)
-                                ? await DbContext.RoomCleanings.CountAsync(c => c.CleanedBy == currentUserId && c.Status == "In Progress")
-                                : 0;
 
-                            @* 2. DÀNH CHO NHÂN VIÊN/ADMIN ĐÃ ĐĂNG NHẬP *@
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-page="/Index">
                                     <i class="bi bi-grid-3x3-gap"></i> Sơ đồ phòng
                                 </a>
                             </li>
 
-                            @if (isStaffUser)
+                            @* 1. PHẦN VIỆC DỌN PHÒNG (Cho Staff/Admin) *@
+                            @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
                             {
+                                var pendingCleaningTasks = (isUserIdParsed)
+                                ? await DbContext.RoomCleanings.CountAsync(c => c.CleanedBy == currentUserId && c.Status == "In Progress")
+                                : 0;
                                 <li class="nav-item">
                                     <a class="nav-link text-white px-3" asp-page="/Staffs/MyTasks">
                                         <i class="bi bi-list-check"></i> Việc dọn phòng
@@ -105,6 +102,24 @@
                                 </li>
                             }
 
+                            @* 2. PHẦN VIỆC BẢO TRÌ (Đã cập nhật cho phép Staff xem nếu bạn muốn gộp quyền) *@
+                            @if (User.IsInRole("Admin") || User.IsInRole("Technician") || User.IsInRole("Staff"))
+                            {
+                                var pendingMaintenance = (isUserIdParsed)
+                                ? await DbContext.MaintenanceTasks.CountAsync(t => t.AssignedTo == currentUserId && t.Status != "Completed")
+                                : 0;
+                                <li class="nav-item">
+                                    <a class="nav-link text-white px-3" asp-page="/Staffs/MaintenanceTasks">
+                                        <i class="bi bi-tools text-warning"></i> Việc bảo trì
+                                        @if (pendingMaintenance > 0)
+                                        {
+                                            <span class="badge bg-danger ms-1">@pendingMaintenance</span>
+                                        }
+                                    </a>
+                                </li>
+                            }
+
+                            @* 3. MENU QUẢN TRỊ *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
@@ -115,35 +130,21 @@
                                         <li><h6 class="dropdown-header text-uppercase text-warning">Vận hành</h6></li>
                                         <li><a class="dropdown-item" asp-page="/Admin/Operations"><i class="bi bi-speedometer2"></i> Giám sát vận hành</a></li>
                                         <li><a class="dropdown-item" asp-page="/Admin/Revenue"><i class="bi bi-graph-up-arrow text-success"></i> Báo cáo doanh thu</a></li>
-
                                         <li><hr class="dropdown-divider border-secondary"></li>
-
                                         <li><h6 class="dropdown-header text-uppercase text-warning">Nhân sự</h6></li>
                                         <li><a class="dropdown-item" asp-page="/Staffs/Index"><i class="bi bi-people"></i> Danh sách nhân viên</a></li>
-                                        @* Đã sửa link từ /Register thành /Admin/AddStaff *@
                                         <li><a class="dropdown-item" asp-page="/Admin/AddStaff"><i class="bi bi-person-plus-fill"></i> Thêm nhân viên mới</a></li>
-
                                         <li><hr class="dropdown-divider border-secondary"></li>
-
                                         <li><h6 class="dropdown-header text-uppercase text-warning">Cấu hình</h6></li>
                                         <li><a class="dropdown-item" asp-page="/Admin/Rooms"><i class="bi bi-door-open"></i> Danh mục phòng</a></li>
                                         <li><a class="dropdown-item" asp-page="/Admin/Services"><i class="bi bi-gear"></i> Cấu hình dịch vụ</a></li>
                                     </ul>
                                 </li>
                             }
-
-                            @if (User.IsInRole("Admin") || User.IsInRole("Technician"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-white px-3" asp-page="/Maintenance/Index">
-                                        <i class="bi bi-tools"></i> Bảo trì
-                                    </a>
-                                </li>
-                            }
                         }
                     </ul>
 
-                    @* PHẦN BÊN PHẢI: TÀI KHOẢN *@
+                    @* USER INFO & LOGOUT *@
                     <div class="navbar-nav align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
@@ -151,7 +152,6 @@
                                 <a class="nav-link dropdown-toggle text-white px-3 border-start border-secondary" href="#" id="userDropdown" data-bs-toggle="dropdown">
                                     <i class="bi bi-person-circle fs-5"></i>
                                     <span class="ms-1 small">@User.Identity.Name</span>
-                                    <span class="badge bg-secondary ms-1" style="font-size: 0.7rem;">@(User.IsInRole("Admin") ? "Admin" : "Staff")</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow">
                                     <li><a class="dropdown-item" asp-page="/Profile"><i class="bi bi-person-vcard"></i> Hồ sơ cá nhân</a></li>
@@ -182,13 +182,10 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted shadow-sm py-3">
+    <footer class="border-top footer text-muted shadow-sm py-3 mt-auto">
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
-            <span>&copy; 2026 - <strong>LuxHotel Management System</strong></span>
-            <div class="d-flex align-items-center gap-3">
-                <span class="small text-muted"><i class="bi bi-shield-check"></i> Secure Connection</span>
-                <span class="badge bg-dark text-warning py-2 px-3">v1.0.5-Stable</span>
-            </div>
+            <span>&copy; 2026 - <strong>LuxHotel Management</strong></span>
+            <span class="badge bg-dark text-warning py-2 px-3">v1.0.8-Stable</span>
         </div>
     </footer>
 

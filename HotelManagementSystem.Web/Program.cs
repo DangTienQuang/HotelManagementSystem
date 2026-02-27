@@ -28,11 +28,12 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<StaffService>();
+builder.Services.AddScoped<MaintenanceService>();
 
 var app = builder.Build();
 
 // --- BẮT ĐẦU PHẦN TỰ ĐỘNG DỌN DẸP VÀ SEED DATA ---
-// --- BẮT ĐẦU PHẦN TỰ ĐỘNG DỌN DẸP VÀ SEED DATA ---
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

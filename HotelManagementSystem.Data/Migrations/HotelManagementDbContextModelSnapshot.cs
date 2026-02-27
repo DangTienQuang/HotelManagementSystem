@@ -46,15 +46,15 @@ namespace HotelManagementSystem.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "CheckInBy" }, "IX_CheckInOuts_CheckInBy");
+                    b.HasIndex("CheckInBy");
 
-                    b.HasIndex(new[] { "CheckOutBy" }, "IX_CheckInOuts_CheckOutBy");
+                    b.HasIndex("CheckOutBy");
 
-                    b.HasIndex(new[] { "ReservationId" }, "IX_CheckInOuts_ReservationId");
+                    b.HasIndex("ReservationId");
 
                     b.ToTable("CheckInOuts");
                 });
@@ -126,28 +126,25 @@ namespace HotelManagementSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ApprovedBy")
-                        .HasColumnType("int");
-
                     b.Property<int?>("AssignedTo")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("Deadline")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
@@ -156,13 +153,16 @@ namespace HotelManagementSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "ApprovedBy" }, "IX_MaintenanceTasks_ApprovedBy");
+                    b.HasIndex("AssignedTo");
 
-                    b.HasIndex(new[] { "AssignedTo" }, "IX_MaintenanceTasks_AssignedTo");
+                    b.HasIndex("RoomId");
 
-                    b.HasIndex(new[] { "RoomId" }, "IX_MaintenanceTasks_RoomId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("MaintenanceTasks");
                 });
@@ -208,9 +208,9 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "RecipientId" }, "IX_Notifications_RecipientId");
+                    b.HasIndex("RecipientId");
 
-                    b.HasIndex(new[] { "SenderId" }, "IX_Notifications_SenderId");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Notifications");
                 });
@@ -238,6 +238,9 @@ namespace HotelManagementSystem.Data.Migrations
                     b.Property<int?>("ReservedBy")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ReservedByNavigationId")
+                        .HasColumnType("int");
+
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
@@ -247,11 +250,11 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "CustomerId" }, "IX_Reservations_CustomerId");
+                    b.HasIndex("CustomerId");
 
-                    b.HasIndex(new[] { "ReservedBy" }, "IX_Reservations_ReservedBy");
+                    b.HasIndex("ReservedByNavigationId");
 
-                    b.HasIndex(new[] { "RoomId" }, "IX_Reservations_RoomId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("Reservations");
                 });
@@ -284,9 +287,9 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "HotelServiceId" }, "IX_ReservationServices_HotelServiceId");
+                    b.HasIndex("HotelServiceId");
 
-                    b.HasIndex(new[] { "ReservationId" }, "IX_ReservationServices_ReservationId");
+                    b.HasIndex("ReservationId");
 
                     b.ToTable("ReservationServices");
                 });
@@ -306,7 +309,7 @@ namespace HotelManagementSystem.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RoomNumber")
                         .IsRequired()
@@ -348,9 +351,9 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "CleanedBy" }, "IX_RoomCleanings_CleanedBy");
+                    b.HasIndex("CleanedBy");
 
-                    b.HasIndex(new[] { "RoomId" }, "IX_RoomCleanings_RoomId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("RoomCleanings");
                 });
@@ -379,7 +382,7 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "UserId" }, "IX_Staffs_UserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Staffs");
                 });
@@ -413,9 +416,12 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -445,11 +451,7 @@ namespace HotelManagementSystem.Data.Migrations
 
             modelBuilder.Entity("HotelManagementSystem.Data.Models.MaintenanceTask", b =>
                 {
-                    b.HasOne("HotelManagementSystem.Data.Models.User", "ApprovedByNavigation")
-                        .WithMany("MaintenanceTaskApprovedByNavigations")
-                        .HasForeignKey("ApprovedBy");
-
-                    b.HasOne("HotelManagementSystem.Data.Models.User", "AssignedToNavigation")
+                    b.HasOne("HotelManagementSystem.Data.Models.User", "Staff")
                         .WithMany("MaintenanceTaskAssignedToNavigations")
                         .HasForeignKey("AssignedTo");
 
@@ -459,11 +461,13 @@ namespace HotelManagementSystem.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ApprovedByNavigation");
-
-                    b.Navigation("AssignedToNavigation");
+                    b.HasOne("HotelManagementSystem.Data.Models.User", null)
+                        .WithMany("MaintenanceTaskApprovedByNavigations")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Room");
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("HotelManagementSystem.Data.Models.Notification", b =>
@@ -491,7 +495,7 @@ namespace HotelManagementSystem.Data.Migrations
 
                     b.HasOne("HotelManagementSystem.Data.Models.User", "ReservedByNavigation")
                         .WithMany("Reservations")
-                        .HasForeignKey("ReservedBy");
+                        .HasForeignKey("ReservedByNavigationId");
 
                     b.HasOne("HotelManagementSystem.Data.Models.Room", "Room")
                         .WithMany("Reservations")

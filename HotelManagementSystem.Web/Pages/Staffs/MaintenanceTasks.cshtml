@@ -1,0 +1,57 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Staffs.MaintenanceTasksModel
+@{
+    ViewData["Title"] = "Công việc bảo trì";
+}
+
+<div class="container-fluid mt-4 px-4">
+    <div class="mb-4">
+        <h2 class="fw-bold"><i class="bi bi-tools text-warning"></i> NHIỆM VỤ BẢO TRÌ</h2>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        @if (!Model.MyTasks.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <h4 class="text-muted">Bạn không có công việc bảo trì nào.</h4>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model.MyTasks)
+            {
+                <div class="col-md-6 col-xl-4 mb-4">
+                    <div class="card shadow-sm border-0 border-top border-4 @(item.Priority == "High" ? "border-danger" : "border-warning")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="fw-bold mb-0">Phòng @item.Room.RoomNumber</h4>
+                                <span class="badge @(item.Priority == "High" ? "bg-danger" : "bg-warning text-dark")">@item.Priority</span>
+                            </div>
+
+                            <p class="bg-light p-2 rounded small"><strong>Mô tả:</strong> @item.Description</p>
+
+                            <div class="small text-muted mb-4">
+                                <div><i class="bi bi-calendar-x"></i> Hạn: @item.Deadline?.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div><i class="bi bi-clock"></i> Tạo: @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+
+                            <form method="post" asp-page-handler="Complete" asp-route-id="@item.Id">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+                                    XÁC NHẬN HOÀN THÀNH
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

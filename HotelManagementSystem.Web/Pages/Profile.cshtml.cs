@@ -1,54 +1,96 @@
-﻿using HotelManagementSystem.Business;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using HotelManagementSystem.Data.Context;
 using HotelManagementSystem.Data.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace HotelManagementSystem.Web.Pages
 {
-    [Authorize]
     public class ProfileModel : PageModel
     {
-        private readonly StaffService _staffService;
-        private readonly HotelManagementDbContext _context; // Dùng để query nhanh task
+        private readonly HotelManagementDbContext _context;
 
-        public ProfileModel(StaffService staffService, HotelManagementDbContext context)
+        public ProfileModel(HotelManagementDbContext context)
         {
-            _staffService = staffService;
             _context = context;
         }
 
-        // Thay vì public Staff? StaffInfo { get; set; }
-        public HotelManagementSystem.Data.Models.Staff? StaffInfo { get; set; }
-        public List<MaintenanceTask> PendingMaintenanceTasks { get; set; } = new();
-        public List<RoomCleaning> PendingCleaningTasks { get; set; } = new();
-        public int TotalPendingTasks => PendingMaintenanceTasks.Count + PendingCleaningTasks.Count;
+        [BindProperty]
+        public User UserProfile { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        [BindProperty]
+        public ChangePasswordViewModel PasswordInput { get; set; } = new();
+
+        public class ChangePasswordViewModel
         {
-            var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdValue, out var userId))
+            [Required(ErrorMessage = "Vui lòng nhập mật khẩu cũ")]
+            [DataType(DataType.Password)]
+            public string OldPassword { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Vui lòng nhập mật khẩu mới")]
+            [MinLength(6, ErrorMessage = "Mật khẩu phải từ 6 ký tự")]
+            [DataType(DataType.Password)]
+            public string NewPassword { get; set; } = string.Empty;
+
+            [Compare("NewPassword", ErrorMessage = "Mật khẩu xác nhận không khớp")]
+            [DataType(DataType.Password)]
+            public string ConfirmPassword { get; set; } = string.Empty;
+        }
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr)) return RedirectToPage("/Login");
+
+            UserProfile = await _context.Users.FindAsync(int.Parse(userIdStr));
+
+            if (UserProfile == null) return NotFound();
+            return Page();
+        }
+
+        // Xử lý cập nhật thông tin cơ bản
+        public async Task<IActionResult> OnPostUpdateInfoAsync()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userToUpdate = await _context.Users.FindAsync(int.Parse(userIdStr));
+
+            if (userToUpdate != null)
             {
-                return;
+                userToUpdate.FullName = UserProfile.FullName;
+                userToUpdate.Email = UserProfile.Email;
+
+                await _context.SaveChangesAsync();
+                TempData["Message"] = "Cập nhật thông tin thành công!";
             }
 
-            // 1. Lấy thông tin từ bảng Staff
-            StaffInfo = await _staffService.GetStaffByUserId(userId);
+            return RedirectToPage();
+        }
 
-            // 2. Lấy danh sách việc được giao (Maintenance)
-            PendingMaintenanceTasks = await _context.MaintenanceTasks
-                .Include(t => t.Room)
-                .Where(t => t.AssignedTo == userId && t.Status != "Completed")
-                .ToListAsync();
+        // Xử lý đổi mật khẩu
+        public async Task<IActionResult> OnPostChangePasswordAsync()
+        {
+            if (!ModelState.IsValid) return Page();
 
-            PendingCleaningTasks = await _context.RoomCleanings
-                .Include(c => c.Room)
-                .Where(c => c.CleanedBy == userId && c.Status == "In Progress")
-                .OrderBy(c => c.CleaningDate)
-                .ToListAsync();
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(int.Parse(userIdStr));
+
+            if (user != null)
+            {
+                // Trong thực tế, bạn nên dùng BCrypt hoặc Identity để Verify mật khẩu
+                if (user.PasswordHash != PasswordInput.OldPassword)
+                {
+                    ModelState.AddModelError("PasswordInput.OldPassword", "Mật khẩu cũ không chính xác");
+                    return Page();
+                }
+
+                user.PasswordHash = PasswordInput.NewPassword;
+                await _context.SaveChangesAsync();
+                TempData["Message"] = "Đổi mật khẩu thành công!";
+            }
+
+            return RedirectToPage();
         }
     }
 }

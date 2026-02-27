@@ -1,0 +1,57 @@
+﻿@page
+@model HotelManagementSystem.Web.Pages.Admin.AssignMaintenanceModel
+@{
+    ViewData["Title"] = "Phân công bảo trì";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-tools"></i> TẠO PHIẾU BẢO TRÌ</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Chọn phòng hư hỏng</label>
+                            <select asp-for="MaintenanceTask.RoomId" class="form-select form-select-lg" asp-items="Model.RoomList">
+                                <option value="">-- Chọn số phòng --</option>
+                            </select>
+                            <span asp-validation-for="MaintenanceTask.RoomId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nhân viên kỹ thuật</label>
+                            <select asp-for="MaintenanceTask.AssignedTo" class="form-select" asp-items="Model.TechStaffList">
+                                <option value="">-- Chọn người thực hiện --</option>
+                            </select>
+                            <span asp-validation-for="MaintenanceTask.AssignedTo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nội dung hư hỏng</label>
+                            <textarea asp-for="MaintenanceTask.Description" class="form-control" rows="3" placeholder="Ví dụ: Hỏng máy lạnh, vỡ cửa kính..."></textarea>
+                            <span asp-validation-for="MaintenanceTask.Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle"></i> XÁC NHẬN PHÂN CÔNG
+                            </button>
+                            <a asp-page="/Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

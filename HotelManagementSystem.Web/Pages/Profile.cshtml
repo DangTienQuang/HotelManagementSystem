@@ -1,120 +1,89 @@
 ﻿@page
 @model HotelManagementSystem.Web.Pages.ProfileModel
 @{
-    ViewData["Title"] = "Hồ sơ cá nhân";
+    ViewData["Title"] = "Trang cá nhân";
 }
 
-<div class="container mt-4">
+
+<div class="container py-5">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow border-0 overflow-hidden">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <i class="bi bi-person-badge fs-1"></i>
-                    <h4 class="mt-2">@Model.StaffInfo?.User.FullName</h4>
-                    <span class="badge bg-light text-primary">@Model.StaffInfo?.Position</span>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 text-center p-4 mb-4">
+                <div class="mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px; font-size: 40px;">
+                    @Model.UserProfile.FullName.Substring(0, 1).ToUpper()
                 </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Ca trực:</span>
-                            <span class="fw-bold">@Model.StaffInfo?.Shift</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Ngày vào làm:</span>
-                            <span>@Model.StaffInfo?.HireDate.ToString("dd/MM/yyyy")</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Email:</span>
-                            <span class="small">@Model.StaffInfo?.User.Email</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span class="text-muted">Công việc chưa hoàn thành:</span>
-                            <span class="badge bg-danger">@Model.TotalPendingTasks</span>
-                        </li>
-                    </ul>
+                <h4 class="fw-bold">@Model.UserProfile.FullName</h4>
+                <p class="text-muted small">@Model.UserProfile.Role</p>
+                <hr>
+                <div class="text-start">
+                    <p class="mb-2"><strong>Username:</strong> @Model.UserProfile.Username</p>
+                    <p class="mb-0"><strong>Ngày tham gia:</strong> @Model.UserProfile.CreatedAt.ToString("dd/MM/yyyy")</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
-            <div class="card shadow border-0 mb-3">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-stars text-primary"></i> Công việc dọn phòng chưa xong</h5>
-                    <span class="badge bg-warning text-dark">@Model.PendingCleaningTasks.Count</span>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <ul class="nav nav-tabs card-header-tabs" id="profileTab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-bold" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button">THÔNG TIN CHUNG</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-bold" id="pass-tab" data-bs-toggle="tab" data-bs-target="#pass" type="button">ĐỔI MẬT KHẨU</button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body">
-                    @if (!Model.PendingCleaningTasks.Any())
+                <div class="card-body p-4">
+                    @if (TempData["Message"] != null)
                     {
-                        <p class="text-muted mb-0">Bạn không còn việc dọn phòng đang thực hiện.</p>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Phòng</th>
-                                        <th>Ngày giao</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var task in Model.PendingCleaningTasks)
-                                    {
-                                        <tr>
-                                            <td><span class="badge bg-secondary">@task.Room?.RoomNumber</span></td>
-                                            <td>@task.CleaningDate.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td><span class="badge bg-info text-dark">@task.Status</span></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                        <div class="alert alert-success border-0 shadow-sm mb-4">
+                            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
                         </div>
                     }
-                </div>
-            </div>
 
-            <div class="card shadow border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-tools text-primary"></i> Công việc bảo trì chưa xong</h5>
-                    <span class="badge bg-danger">@Model.PendingMaintenanceTasks.Count</span>
-                </div>
-                <div class="card-body">
-                    @if (!Model.PendingMaintenanceTasks.Any())
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-emoji-smile text-muted fs-1"></i>
-                            <p class="text-muted">Bạn không có công việc bảo trì nào đang chờ xử lý!</p>
+                    <div class="tab-content" id="profileTabContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <form method="post" asp-page-handler="UpdateInfo">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Họ và Tên</label>
+                                    <input asp-for="UserProfile.FullName" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Email</label>
+                                    <input asp-for="UserProfile.Email" type="email" class="form-control" />
+                                </div>
+                                <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                            </form>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Phòng</th>
-                                        <th>Mô tả</th>
-                                        <th>Ưu tiên</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var task in Model.PendingMaintenanceTasks)
-                                    {
-                                        <tr>
-                                            <td><span class="badge bg-secondary">@task.Room.RoomNumber</span></td>
-                                            <td class="small">@task.Description</td>
-                                            <td>
-                                                <span class="badge @(task.Priority == "High" ? "bg-danger" : "bg-info")">@task.Priority</span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+
+                        <div class="tab-pane fade" id="pass" role="tabpanel">
+                            <form method="post" asp-page-handler="ChangePassword">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                                    <input asp-for="PasswordInput.OldPassword" class="form-control" />
+                                    <span asp-validation-for="PasswordInput.OldPassword" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Mật khẩu mới</label>
+                                    <input asp-for="PasswordInput.NewPassword" class="form-control" />
+                                    <span asp-validation-for="PasswordInput.NewPassword" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Xác nhận mật khẩu</label>
+                                    <input asp-for="PasswordInput.ConfirmPassword" class="form-control" />
+                                    <span asp-validation-for="PasswordInput.ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                                <button type="submit" class="btn btn-danger px-4">Cập nhật mật khẩu</button>
+                            </form>
                         </div>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

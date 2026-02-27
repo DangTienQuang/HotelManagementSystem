@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HotelManagementSystem.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBasePriceToRoom : Migration
+    public partial class AddMissingMaintenanceFields : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -68,7 +68,7 @@ namespace HotelManagementSystem.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -88,13 +88,13 @@ namespace HotelManagementSystem.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     AssignedTo = table.Column<int>(type: "int", nullable: true),
-                    Priority = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ApprovedBy = table.Column<int>(type: "int", nullable: true)
+                    Priority = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Deadline = table.Column<DateTime>(type: "datetime", nullable: true),
+                    CompletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -106,13 +106,13 @@ namespace HotelManagementSystem.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MaintenanceTasks_Users_ApprovedBy",
-                        column: x => x.ApprovedBy,
+                        name: "FK_MaintenanceTasks_Users_AssignedTo",
+                        column: x => x.AssignedTo,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_MaintenanceTasks_Users_AssignedTo",
-                        column: x => x.AssignedTo,
+                        name: "FK_MaintenanceTasks_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -160,7 +160,8 @@ namespace HotelManagementSystem.Data.Migrations
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReservedByNavigationId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -178,8 +179,8 @@ namespace HotelManagementSystem.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Reservations_Users_ReservedBy",
-                        column: x => x.ReservedBy,
+                        name: "FK_Reservations_Users_ReservedByNavigationId",
+                        column: x => x.ReservedByNavigationId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -267,6 +268,36 @@ namespace HotelManagementSystem.Data.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ReservationServices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReservationId = table.Column<int>(type: "int", nullable: false),
+                    HotelServiceId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReservationServices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReservationServices_HotelServices_HotelServiceId",
+                        column: x => x.HotelServiceId,
+                        principalTable: "HotelServices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationServices_Reservations_ReservationId",
+                        column: x => x.ReservationId,
+                        principalTable: "Reservations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CheckInOuts_CheckInBy",
                 table: "CheckInOuts",
@@ -283,11 +314,6 @@ namespace HotelManagementSystem.Data.Migrations
                 column: "ReservationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MaintenanceTasks_ApprovedBy",
-                table: "MaintenanceTasks",
-                column: "ApprovedBy");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MaintenanceTasks_AssignedTo",
                 table: "MaintenanceTasks",
                 column: "AssignedTo");
@@ -296,6 +322,11 @@ namespace HotelManagementSystem.Data.Migrations
                 name: "IX_MaintenanceTasks_RoomId",
                 table: "MaintenanceTasks",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MaintenanceTasks_UserId",
+                table: "MaintenanceTasks",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_RecipientId",
@@ -313,14 +344,24 @@ namespace HotelManagementSystem.Data.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservations_ReservedBy",
+                name: "IX_Reservations_ReservedByNavigationId",
                 table: "Reservations",
-                column: "ReservedBy");
+                column: "ReservedByNavigationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservations_RoomId",
                 table: "Reservations",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationServices_HotelServiceId",
+                table: "ReservationServices",
+                column: "HotelServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationServices_ReservationId",
+                table: "ReservationServices",
+                column: "ReservationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomCleanings_CleanedBy",
@@ -336,6 +377,12 @@ namespace HotelManagementSystem.Data.Migrations
                 name: "IX_Staffs_UserId",
                 table: "Staffs",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -345,19 +392,22 @@ namespace HotelManagementSystem.Data.Migrations
                 name: "CheckInOuts");
 
             migrationBuilder.DropTable(
-                name: "HotelServices");
-
-            migrationBuilder.DropTable(
                 name: "MaintenanceTasks");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
+                name: "ReservationServices");
+
+            migrationBuilder.DropTable(
                 name: "RoomCleanings");
 
             migrationBuilder.DropTable(
                 name: "Staffs");
+
+            migrationBuilder.DropTable(
+                name: "HotelServices");
 
             migrationBuilder.DropTable(
                 name: "Reservations");
