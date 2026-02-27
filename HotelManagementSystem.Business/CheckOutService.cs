@@ -9,7 +9,8 @@ namespace HotelManagementSystem.Business
         private readonly HotelManagementDbContext _context;
         public CheckOutService(HotelManagementDbContext context) => _context = context;
 
-        public async Task<bool> ExecuteCheckOut(int reservationId, int? operatorUserId = null)
+        // Thêm tham số staffId vào đây
+        public async Task<bool> ExecuteCheckOut(int reservationId, int staffId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -23,7 +24,7 @@ namespace HotelManagementSystem.Business
                 if (checkInfo == null) return false;
 
                 checkInfo.CheckOutTime = DateTime.Now;
-                checkInfo.CheckOutBy = operatorUserId;
+                checkInfo.CheckOutBy = staffId; // Lưu ID người thực hiện check-out
 
                 // Logic tính tiền: (Giờ trả - Giờ đến) tính theo ngày
                 var stayDuration = (checkInfo.CheckOutTime.Value - checkInfo.CheckInTime.Value).Days;

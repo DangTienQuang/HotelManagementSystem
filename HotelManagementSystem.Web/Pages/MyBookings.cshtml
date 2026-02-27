@@ -61,10 +61,6 @@
                                 {
                                     <span class="badge bg-success">Checked In</span>
                                 }
-                                else if (res.Status == "Completed")
-                                {
-                                    <span class="badge bg-primary">Completed</span>
-                                }
                                 else
                                 {
                                     <span class="badge bg-light text-dark">@res.Status</span>
@@ -76,14 +72,6 @@
                                     <form method="post" asp-page-handler="CheckIn" asp-route-reservationId="@res.Id" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-success">
                                             <i class="bi bi-box-arrow-in-right"></i> Check-in
-                                        </button>
-                                    </form>
-                                }
-                                else if (res.Status == "CheckedIn")
-                                {
-                                    <form method="post" asp-page-handler="StartCheckOut" asp-route-reservationId="@res.Id" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-cash-stack"></i> Check-out
                                         </button>
                                     </form>
                                 }
