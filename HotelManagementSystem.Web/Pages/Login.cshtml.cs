@@ -61,15 +61,15 @@ namespace HotelManagementSystem.Web.Pages
                 return Page();
             }
 
-            var claims = new List<Claim>
+            var customerClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, customer.Username),
                 new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
                 new Claim(ClaimTypes.Role, "Consumer")
             };
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            var customerClaimsIdentity = new ClaimsIdentity(customerClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(customerClaimsIdentity));
             return RedirectToPage("/MyBookings");
         }
     }
