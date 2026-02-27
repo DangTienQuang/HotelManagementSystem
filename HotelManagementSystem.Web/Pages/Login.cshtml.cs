@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +22,6 @@ namespace HotelManagementSystem.Web.Pages
             public string Password { get; set; } = string.Empty;
         }
 
-        public void OnGet(string? message)
-        {
-            if (!string.IsNullOrEmpty(message))
-            {
-                TempData["Message"] = message;
-            }
-        }
-
         public async Task<IActionResult> OnPostAsync()
         {
             var user = await _context.Users
@@ -41,24 +33,17 @@ namespace HotelManagementSystem.Web.Pages
                 return Page();
             }
 
-            // Create claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
+                // Dòng quan trọng để trang MyTasks lọc đúng việc:
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-            // Sign In
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties { IsPersistent = true }
-            );
-
-            // Redirect based on Role
             if (user.Role == "Staff")
             {
                 return RedirectToPage("/Staffs/MyTasks");
@@ -69,7 +54,6 @@ namespace HotelManagementSystem.Web.Pages
                 return RedirectToPage("/Staffs/MaintenanceTasks");
             }
 
-            // Both Consumer and Admin go to Index (Admin can view all, Consumer views limited)
             return RedirectToPage("/Index");
         }
     }
