@@ -17,13 +17,26 @@ namespace HotelManagementSystem.Web.Pages
         }
 
         [BindProperty]
-        public Customer Customer { get; set; } = new();
-
-        [BindProperty]
         public RegisterInput Input { get; set; } = new();
 
         public class RegisterInput
         {
+            [Required]
+            public string FullName { get; set; } = string.Empty;
+
+            [Required]
+            public string Phone { get; set; } = string.Empty;
+
+            [Required]
+            public string IdentityNumber { get; set; } = string.Empty;
+
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; } = string.Empty;
+
+            [Required]
+            public string Address { get; set; } = string.Empty;
+
             [Required]
             public string Username { get; set; } = string.Empty;
 
@@ -38,20 +51,19 @@ namespace HotelManagementSystem.Web.Pages
 
         public void OnGet()
         {
-            // Reset form khi truy cập mới
             ModelState.Clear();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Kiểm tra tính hợp lệ của dữ liệu
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            var existedUsername = await _context.Customers.AnyAsync(c => c.Username == Input.Username)
-                                  || await _context.Users.AnyAsync(u => u.Username == Input.Username);
+            var username = Input.Username.Trim();
+            var existedUsername = await _context.Customers.AnyAsync(c => c.Username == username)
+                                  || await _context.Users.AnyAsync(u => u.Username == username);
             if (existedUsername)
             {
                 ModelState.AddModelError("Input.Username", "Tên đăng nhập đã tồn tại.");
@@ -60,26 +72,26 @@ namespace HotelManagementSystem.Web.Pages
 
             try
             {
-                // Gán các giá trị bắt buộc theo Model Customer.cs của bạn
-                Customer.CreatedAt = DateTime.Now;
+                var customer = new Customer
+                {
+                    FullName = Input.FullName.Trim(),
+                    Phone = Input.Phone.Trim(),
+                    IdentityNumber = Input.IdentityNumber.Trim(),
+                    Email = Input.Email.Trim(),
+                    Address = Input.Address.Trim(),
+                    Username = username,
+                    PasswordHash = Input.Password,
+                    CreatedAt = DateTime.Now
+                };
 
-                // Xử lý chuỗi rỗng để tránh lỗi null! trong DB
-                if (string.IsNullOrWhiteSpace(Customer.Address)) Customer.Address = "N/A";
-                if (string.IsNullOrWhiteSpace(Customer.IdentityNumber)) Customer.IdentityNumber = "N/A";
-                if (string.IsNullOrWhiteSpace(Customer.Email)) Customer.Email = "none@hotel.com";
-                Customer.Username = Input.Username.Trim();
-                Customer.PasswordHash = Input.Password;
-
-                _context.Customers.Add(Customer);
+                _context.Customers.Add(customer);
                 await _context.SaveChangesAsync();
 
-                // Đăng ký xong quay về trang chủ
                 return RedirectToPage("/Index");
             }
             catch (Exception ex)
             {
-                // Hiển thị lỗi cụ thể nếu lưu thất bại
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.InnerException?.Message ?? ex.Message);
+                ModelState.AddModelError(string.Empty, "Lỗi: " + (ex.InnerException?.Message ?? ex.Message));
                 return Page();
             }
         }
