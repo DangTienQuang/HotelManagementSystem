@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using HotelManagementSystem.Data.Context;
 using HotelManagementSystem.Data.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace HotelManagementSystem.Web.Pages.Admin
 {
@@ -50,8 +51,8 @@ namespace HotelManagementSystem.Web.Pages.Admin
                 .OrderBy(s => s.Name)
                 .ToListAsync();
 
-            // Gán các giá trị mặc định
-            Reservation.Status = "Booked";
+            // Gán các giá trị mặc định — walk-in trực tiếp nên đặt thẳng vào trạng thái đã nhận phòng
+            Reservation.Status = "CheckedIn";
             Reservation.CreatedAt = DateTime.Now;
 
             _context.Reservations.Add(Reservation);
@@ -76,12 +77,19 @@ namespace HotelManagementSystem.Web.Pages.Admin
                 }
             }
 
-            // Cập nhật trạng thái phòng sang 'Occupied'
+            // Đánh dấu phòng là Occupied và tạo bản ghi CheckInOut
             var room = await _context.Rooms.FindAsync(Reservation.RoomId);
             if (room != null)
-            {
                 room.Status = "Occupied";
-            }
+
+            var adminId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : (int?)null;
+            _context.CheckInOuts.Add(new CheckInOut
+            {
+                ReservationId = Reservation.Id,
+                CheckInTime = DateTime.Now,
+                CheckInBy = adminId,
+                TotalAmount = 0
+            });
 
             await _context.SaveChangesAsync();
             return RedirectToPage("/Index");

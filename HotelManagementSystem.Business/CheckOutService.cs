@@ -15,19 +15,34 @@ namespace HotelManagementSystem.Business
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Tìm bản ghi CheckInOut đang mở (chưa có giờ trả phòng)
                 var checkInfo = await _context.CheckInOuts
                     .Include(c => c.Reservation)
                     .ThenInclude(r => r.Room)
                     .FirstOrDefaultAsync(c => c.ReservationId == reservationId && c.CheckOutTime == null);
 
-                if (checkInfo == null) return false;
+                if (checkInfo == null)
+                {
+                    // Fallback: reservation was checked in without a CheckInOut record
+                    var res = await _context.Reservations
+                        .Include(r => r.Room)
+                        .FirstOrDefaultAsync(r => r.Id == reservationId && r.Status == "CheckedIn");
+
+                    if (res == null || res.Room == null) return false;
+
+                    checkInfo = new CheckInOut
+                    {
+                        ReservationId = reservationId,
+                        CheckInTime = res.CheckInDate,
+                        TotalAmount = 0
+                    };
+                    checkInfo.Reservation = res;
+                    _context.CheckInOuts.Add(checkInfo);
+                }
 
                 checkInfo.CheckOutTime = DateTime.Now;
-                checkInfo.CheckOutBy = staffId; // Lưu ID người thực hiện check-out
+                checkInfo.CheckOutBy = staffId;
 
-                // Logic tính tiền: (Giờ trả - Giờ đến) tính theo ngày
-                var stayDuration = (checkInfo.CheckOutTime.Value - checkInfo.CheckInTime.Value).Days;
+                var stayDuration = (checkInfo.CheckOutTime.Value - checkInfo.CheckInTime!.Value).Days;
                 if (stayDuration <= 0) stayDuration = 1;
 
                 var roomAmount = stayDuration * checkInfo.Reservation.Room.Price;
@@ -37,7 +52,6 @@ namespace HotelManagementSystem.Business
 
                 checkInfo.TotalAmount = roomAmount + serviceAmount;
 
-                // Cập nhật trạng thái
                 checkInfo.Reservation.Status = "Completed";
                 checkInfo.Reservation.Room.Status = "Available";
 

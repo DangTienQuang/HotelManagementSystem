@@ -19,9 +19,9 @@ namespace HotelManagementSystem.Web.Pages
         {
             var rooms = await _context.Rooms.ToListAsync();
 
-            // Lấy các đơn đặt phòng đang ở (Status là Booked hoặc CheckedIn)
+            // Lấy các đơn đặt phòng đang có khách (Status là CheckedIn)
             var activeReservations = await _context.Reservations
-                .Where(r => r.Status == "Booked" || r.Status == "CheckedIn")
+                .Where(r => r.Status == "CheckedIn")
                 .ToListAsync();
 
             // Ánh xạ dữ liệu
