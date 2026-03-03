@@ -59,5 +59,11 @@ namespace HotelManagementSystem.Web.Pages
             if (!int.TryParse(userIdClaim, out int userId)) return null;
             return await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
         }
+
+        public static DateTime GetRefundDeadline(Reservation reservation) =>
+            reservation.CheckInDate.AddHours(-48);
+
+        public static bool IsRefundEligible(Reservation reservation) =>
+            DateTime.Now < GetRefundDeadline(reservation);
     }
 }

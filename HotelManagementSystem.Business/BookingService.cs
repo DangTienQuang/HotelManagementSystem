@@ -214,6 +214,12 @@ namespace HotelManagementSystem.Business
             if (reservation.Status != "Confirmed" && reservation.Status != "PendingPayment")
                 return (false, "Không thể hoàn tiền cho đặt phòng này.");
 
+            var refundDeadline = reservation.CheckInDate.AddHours(-48);
+            if (DateTime.Now >= refundDeadline)
+                return (false,
+                    $"Không thể hoàn tiền. Yêu cầu hoàn tiền phải được thực hiện ít nhất 48 giờ trước khi nhận phòng " +
+                    $"(hạn chót: {refundDeadline:dd/MM/yyyy HH:mm}).");
+
             var payment = reservation.Payments
                 .FirstOrDefault(p => p.Status == "Completed" || p.Status == "Pending");
 
