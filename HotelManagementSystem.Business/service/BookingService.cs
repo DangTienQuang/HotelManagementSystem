@@ -10,11 +10,13 @@ namespace HotelManagementSystem.Business.service
     {
         private readonly HotelManagementDbContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IRoomUpdateBroadcaster _roomUpdateBroadcaster;
 
-        public BookingService(HotelManagementDbContext context, INotificationService notificationService)
+        public BookingService(HotelManagementDbContext context, INotificationService notificationService, IRoomUpdateBroadcaster roomUpdateBroadcaster)
         {
             _context = context;
             _notificationService = notificationService;
+            _roomUpdateBroadcaster = roomUpdateBroadcaster;
         }
 
         public async Task<List<HotelService>> GetAvailableServicesAsync()
@@ -101,6 +103,8 @@ namespace HotelManagementSystem.Business.service
                     RecipientType = "Admin",
                     IsAnnouncement = true
                 }, toAdminGroup: true);
+
+                await _roomUpdateBroadcaster.BroadcastRoomStatusAsync(room.Id, room.RoomNumber, room.Status);
 
                 await transaction.CommitAsync();
                 return true;
@@ -226,6 +230,11 @@ namespace HotelManagementSystem.Business.service
                 RecipientType = "Admin",
                 IsAnnouncement = true
             }, toAdminGroup: true);
+
+            if (room != null)
+            {
+                await _roomUpdateBroadcaster.BroadcastRoomStatusAsync(room.Id, room.RoomNumber, room.Status);
+            }
 
             return true;
         }
